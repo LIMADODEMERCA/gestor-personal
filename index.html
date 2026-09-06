@@ -16,6 +16,7 @@
     input, select, button, textarea { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; }
     button { background: #0070f3; color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
     button:hover { background: #0051a2; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
     ul { list-style: none; padding: 0; }
     li { background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #0070f3; }
     .badge { font-size: 0.8rem; background: #e4e6eb; padding: 2px 6px; border-radius: 4px; float: right; }
@@ -29,15 +30,13 @@
     </header>
 
     <div class="grid">
-      <!-- Crear Carpeta -->
       <div class="card">
         <h2>Nueva Carpeta</h2>
         <input type="text" id="carpeta-nombre" placeholder="Nombre de carpeta (ej: Casa, Estudio)">
-        <button onclick="crearCarpeta()">Crear Carpeta</button>
+        <button id="btn-carpeta" onclick="crearCarpeta()">Crear Carpeta</button>
         <ul id="lista-carpetas"></ul>
       </div>
 
-      <!-- Registrar Gasto -->
       <div class="card">
         <h2>Registrar Gasto</h2>
         <select id="gasto-carpeta"></select>
@@ -45,20 +44,18 @@
         <input type="number" id="gasto-monto" placeholder="Monto ($)">
         <label>Comprobante / Ticket (Imagen):</label>
         <input type="file" id="gasto-foto" accept="image/*">
-        <button onclick="guardarGasto()">Guardar Gasto</button>
+        <button id="btn-gasto" onclick="guardarGasto()">Guardar Gasto</button>
       </div>
 
-      <!-- Crear Tarea -->
       <div class="card">
         <h2>Nueva Tarea / Recordatorio</h2>
         <select id="tarea-carpeta"></select>
         <input type="text" id="tarea-titulo" placeholder="Título de la tarea">
-        <button onclick="guardarTarea()">Agregar Tarea</button>
+        <button id="btn-tarea" onclick="guardarTarea()">Agregar Tarea</button>
         <ul id="lista-tareas"></ul>
       </div>
     </div>
 
-    <!-- Historial de Movimientos -->
     <div class="card" style="margin-top: 20px;">
       <h2>📋 Historial de Movimientos (Fecha y Hora)</h2>
       <ul id="lista-historial"></ul>
@@ -66,8 +63,18 @@
   </div>
 
   <script>
+    // Capturar errores globales y mostrar alerta emergente
+    window.addEventListener('error', function(e) {
+      alert("⚠️ Error en ejecución: " + e.message);
+    });
+
     const SUPABASE_URL = "https://vluozfvttzowdmkgxebm.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdW96ZnZ0dHpvd2Rta2d4ZWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjMxODcsImV4cCI6MjEwNDIzOTE4N30.46fb_h8H7TnKgFqorofIBgd29tM6374AFLcSnzsvW6M";
+
+    if (!window.supabase) {
+      alert("⚠️ No se cargó la librería de Supabase. Verificá tu conexión o bloqueador de anuncios.");
+    }
+
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function cargarDatos() {
@@ -109,7 +116,7 @@
           </li>`;
         });
       } catch (err) {
-        console.error("Error cargando datos:", err);
+        alert("Error cargando datos: " + err.message);
       }
     }
 
@@ -122,19 +129,33 @@
     }
 
     async function crearCarpeta() {
+      const btn = document.getElementById('btn-carpeta');
       const nombre = document.getElementById('carpeta-nombre').value;
-      if (!nombre) return alert('Escribí un nombre');
-      const { data, error } = await supabase.from('carpetas').insert([{ nombre }]).select();
-      if (error) {
-        alert('Error al crear carpeta: ' + error.message);
-      } else {
-        await registrarHistorial('CREAR', 'carpetas', { nombre });
-        document.getElementById('carpeta-nombre').value = '';
-        await cargarDatos();
+      if (!nombre) return alert('Escribí un nombre de carpeta');
+
+      btn.disabled = true;
+      btn.innerText = 'Guardando...';
+
+      try {
+        const { data, error } = await supabase.from('carpetas').insert([{ nombre }]).select();
+        if (error) {
+          alert('Error al crear carpeta: ' + error.message);
+        } else {
+          alert('¡Carpeta creada con éxito!');
+          await registrarHistorial('CREAR', 'carpetas', { nombre });
+          document.getElementById('carpeta-nombre').value = '';
+          await cargarDatos();
+        }
+      } catch (err) {
+        alert('Fallo inesperado: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Crear Carpeta';
       }
     }
 
     async function guardarGasto() {
+      const btn = document.getElementById('btn-gasto');
       const carpeta_id = document.getElementById('gasto-carpeta').value || null;
       const concepto = document.getElementById('gasto-concepto').value;
       const monto = document.getElementById('gasto-monto').value;
@@ -143,42 +164,64 @@
 
       if (!concepto || !monto) return alert('Completá el concepto y el monto');
 
-      if (archivo) {
-        const fileExt = archivo.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: upErr } = await supabase.storage.from('adjuntos').upload(fileName, archivo);
-        if (upErr) return alert('Error al subir imagen: ' + upErr.message);
-        if (uploadData) {
-          const { data: urlData } = supabase.storage.from('adjuntos').getPublicUrl(fileName);
-          comprobante_url = urlData.publicUrl;
-        }
-      }
+      btn.disabled = true;
+      btn.innerText = 'Guardando...';
 
-      const { error } = await supabase.from('gastos').insert([{ carpeta_id, concepto, monto: parseFloat(monto), comprobante_url }]);
-      if (error) {
-        alert('Error al guardar gasto: ' + error.message);
-      } else {
-        await registrarHistorial('CREAR', 'gastos', { concepto, monto, con_foto: !!comprobante_url });
-        document.getElementById('gasto-concepto').value = '';
-        document.getElementById('gasto-monto').value = '';
-        document.getElementById('gasto-foto').value = '';
-        await cargarDatos();
-        alert('Gasto registrado con éxito');
+      try {
+        if (archivo) {
+          const fileExt = archivo.name.split('.').pop();
+          const fileName = `${Date.now()}.${fileExt}`;
+          const { data: uploadData, error: upErr } = await supabase.storage.from('adjuntos').upload(fileName, archivo);
+          if (upErr) throw new Error('Error al subir imagen: ' + upErr.message);
+          if (uploadData) {
+            const { data: urlData } = supabase.storage.from('adjuntos').getPublicUrl(fileName);
+            comprobante_url = urlData.publicUrl;
+          }
+        }
+
+        const { error } = await supabase.from('gastos').insert([{ carpeta_id, concepto, monto: parseFloat(monto), comprobante_url }]);
+        if (error) {
+          alert('Error al guardar gasto: ' + error.message);
+        } else {
+          alert('¡Gasto registrado con éxito!');
+          await registrarHistorial('CREAR', 'gastos', { concepto, monto, con_foto: !!comprobante_url });
+          document.getElementById('gasto-concepto').value = '';
+          document.getElementById('gasto-monto').value = '';
+          document.getElementById('gasto-foto').value = '';
+          await cargarDatos();
+        }
+      } catch (err) {
+        alert('Fallo inesperado: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Guardar Gasto';
       }
     }
 
     async function guardarTarea() {
+      const btn = document.getElementById('btn-tarea');
       const carpeta_id = document.getElementById('tarea-carpeta').value || null;
       const titulo = document.getElementById('tarea-titulo').value;
       if (!titulo) return alert('Escribí el título de la tarea');
 
-      const { error } = await supabase.from('tareas').insert([{ carpeta_id, titulo }]);
-      if (error) {
-        alert('Error al guardar tarea: ' + error.message);
-      } else {
-        await registrarHistorial('CREAR', 'tareas', { titulo });
-        document.getElementById('tarea-titulo').value = '';
-        await cargarDatos();
+      btn.disabled = true;
+      btn.innerText = 'Guardando...';
+
+      try {
+        const { error } = await supabase.from('tareas').insert([{ carpeta_id, titulo }]);
+        if (error) {
+          alert('Error al guardar tarea: ' + error.message);
+        } else {
+          alert('¡Tarea agregada con éxito!');
+          await registrarHistorial('CREAR', 'tareas', { titulo });
+          document.getElementById('tarea-titulo').value = '';
+          await cargarDatos();
+        }
+      } catch (err) {
+        alert('Fallo inesperado: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Agregar Tarea';
       }
     }
 

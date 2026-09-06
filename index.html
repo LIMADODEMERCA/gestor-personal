@@ -194,7 +194,7 @@
   /* ========================================= */
   @media (min-width: 768px) {
     .app-shell {
-      max-width: 960px;
+      max-width: 1080px; 
       padding-left: 240px; 
       padding-bottom: 40px;
       margin: 0 auto;
@@ -213,8 +213,9 @@
       border-right: 1px solid var(--line);
       background: var(--paper);
     }
-    /* Centrado correcto para monitores grandes */
-    @media (min-width: 960px) { .bottom-nav { left: calc(50% - 480px); } }
+    
+    /* Centrado para monitores grandes */
+    @media (min-width: 1080px) { .bottom-nav { left: calc(50% - 540px); } }
 
     .nav-btn {
       flex: none; flex-direction: row; width: 100%;
@@ -224,35 +225,45 @@
     }
     .nav-btn svg { margin-right: 12px; }
 
-    /* Distribuir contenido en dos columnas (Formulario a la izq, Listas a la der) */
+    /* Forzar que distribuyan en grilla SOLO los paneles si están activos */
     #panel-gastos, #panel-ingresos, 
-    section[data-view="tareas"] .contenido-carpeta, 
-    section[data-view="notas"] .contenido-carpeta, 
-    section[data-view="archivos"],
-    section[data-view="resumen"] {
+    section.view.active[data-view="tareas"] .contenido-carpeta, 
+    section.view.active[data-view="notas"] .contenido-carpeta,
+    section.view.active[data-view="archivos"] {
       display: grid;
       grid-template-columns: 320px 1fr;
       gap: 24px;
       align-items: start;
     }
-    
-    section[data-view="resumen"] { grid-template-columns: 1fr 1fr; }
+
+    section.view.active[data-view="resumen"] { 
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
     
     .card { margin-bottom: 0; height: 100%; }
     
     /* Tarjetas que deben ocupar el ancho total */
     #card-balance, section[data-view="historial"] .card, .placeholder-carpeta,
-    #card-completadas, #resumen-carpeta-actual-card { 
+    #card-completadas, #resumen-carpeta-actual-card, #segmentado-finanzas, #card-resumen-gastos { 
       grid-column: 1 / -1; 
     }
     
-    /* Modales centrados en PC en vez de subir desde abajo */
+    /* Modales centrados en PC (ahora sí, invisibles por defecto) */
     .sheet {
       max-width: 480px; left: 50%; top: 50%; bottom: auto; right: auto; margin: 0;
-      transform: translate(-50%, 150%); border-radius: var(--radius-lg); padding: 30px;
+      transform: translate(-50%, -40%) scale(0.95); 
+      opacity: 0; pointer-events: none; /* Las oculta completamente */
+      border-radius: var(--radius-lg); padding: 30px;
       box-shadow: 0 10px 50px rgba(0,0,0,0.5); max-height: 85vh;
+      transition: transform .2s ease, opacity .2s ease;
     }
-    .sheet.open { transform: translate(-50%, -50%); }
+    .sheet.open { 
+      transform: translate(-50%, -50%) scale(1); 
+      opacity: 1; pointer-events: auto; /* Las muestra suavemente */
+    }
     .sheet-handle { display: none; }
   }
 </style>
@@ -327,7 +338,7 @@
           <ul class="lista-leyenda" id="gastos-desglose"></ul>
         </div>
 
-        <div class="segmentado" id="segmentado-finanzas" style="grid-column: 1 / -1;">
+        <div class="segmentado" id="segmentado-finanzas">
           <button class="segmento activo" data-tipo="gastos">Gastos</button>
           <button class="segmento" data-tipo="ingresos">Ingresos</button>
         </div>
@@ -651,8 +662,8 @@
 
   function actualizarPlaceholders() {
     const hayCarpeta = carpetaActualId !== null;
-    document.querySelectorAll(".placeholder-carpeta").forEach(el => el.style.display = hayCarpeta ? "none" : "block");
-    document.querySelectorAll(".contenido-carpeta").forEach(el => el.style.display = hayCarpeta ? "block" : "none");
+    document.querySelectorAll(".placeholder-carpeta").forEach(el => el.style.display = hayCarpeta ? "none" : "");
+    document.querySelectorAll(".contenido-carpeta").forEach(el => el.style.display = hayCarpeta ? "" : "none");
   }
 
   function mostrarVista(nombre) {
@@ -837,7 +848,7 @@
     });
     document.getElementById("torta-gastos").style.background = `conic-gradient(${segmentos.join(", ")})`;
     document.getElementById("gastos-desglose").innerHTML = filas.map(([cat, monto], i) => `<li><span class="punto-leyenda" style="background:${COLORES_DESGLOSE[i % COLORES_DESGLOSE.length]}"></span><span class="leyenda-nombre">${escapeHtml(cat)}</span><span class="leyenda-monto">$${monto.toFixed(2)}</span></li>`).join("");
-    cardResumen.style.display = "block";
+    cardResumen.style.display = "";
 
     items.forEach((gasto) => {
       const li = document.createElement("li");
@@ -982,8 +993,8 @@
       document.querySelectorAll("#segmentado-finanzas .segmento").forEach((b) => b.classList.remove("activo"));
       btn.classList.add("activo");
       const esGastos = btn.dataset.tipo === "gastos";
-      document.getElementById("panel-gastos").style.display = esGastos ? "block" : "none";
-      document.getElementById("panel-ingresos").style.display = esGastos ? "none" : "block";
+      document.getElementById("panel-gastos").style.display = esGastos ? "" : "none";
+      document.getElementById("panel-ingresos").style.display = esGastos ? "none" : "";
     });
   });
 
@@ -1036,7 +1047,7 @@
           li.querySelector(".btn-toggle-desc").addEventListener("click", (e) => {
             const box = li.querySelector(".box-desc");
             const icon = e.currentTarget.querySelector("svg");
-            if(box.style.display === "none") { box.style.display = "block"; icon.style.transform = "rotate(180deg)"; } 
+            if(box.style.display === "none") { box.style.display = ""; icon.style.transform = "rotate(180deg)"; } 
             else { box.style.display = "none"; icon.style.transform = "rotate(0deg)"; }
           });
         }
@@ -1046,7 +1057,7 @@
 
     if (completadas.length === 0) { document.getElementById("card-completadas").style.display = "none"; }
     else {
-      document.getElementById("card-completadas").style.display = "block";
+      document.getElementById("card-completadas").style.display = "";
       document.getElementById("contador-completadas").textContent = completadas.length;
       completadas.forEach((t) => {
         const li = document.createElement("li");
@@ -1066,7 +1077,7 @@
 
   document.getElementById("btn-toggle-completadas").addEventListener("click", () => {
     const ul = document.getElementById("lista-tareas-completadas");
-    ul.style.display = ul.style.display === "none" ? "block" : "none";
+    ul.style.display = ul.style.display === "none" ? "" : "none";
   });
 
   async function agregarTarea() {
@@ -1159,7 +1170,7 @@
       li.querySelector(".btn-toggle-nota").addEventListener("click", (e) => {
         const box = li.querySelector(".box-desc");
         const icon = e.currentTarget.querySelector("svg");
-        if(box.style.display === "none") { box.style.display = "block"; icon.style.transform = "rotate(180deg)"; } 
+        if(box.style.display === "none") { box.style.display = ""; icon.style.transform = "rotate(180deg)"; } 
         else { box.style.display = "none"; icon.style.transform = "rotate(0deg)"; }
       });
       li.querySelector(".btn-editar-nota").addEventListener("click", () => abriModalEditarNota(n));

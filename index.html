@@ -290,16 +290,122 @@
 
     data.forEach((carpeta) => {
       const li = document.createElement("li");
-      li.textContent = carpeta.nombre;
       li.dataset.id = carpeta.id;
+      li.style.display = "flex";
+      li.style.justifyContent = "space-between";
+      li.style.alignItems = "center";
+      li.style.gap = "6px";
       if (carpeta.id === carpetaActualId) li.classList.add("activa");
-      li.addEventListener("click", () => seleccionarCarpeta(carpeta.id, carpeta.nombre));
+
+      const nombreSpan = document.createElement("span");
+      nombreSpan.textContent = carpeta.nombre;
+      nombreSpan.style.flex = "1";
+      nombreSpan.style.overflow = "hidden";
+      nombreSpan.style.textOverflow = "ellipsis";
+      nombreSpan.style.whiteSpace = "nowrap";
+      nombreSpan.addEventListener("click", () => seleccionarCarpeta(carpeta.id, carpeta.nombre));
+
+      const acciones = document.createElement("span");
+      acciones.style.display = "flex";
+      acciones.style.gap = "4px";
+
+      const btnEditar = document.createElement("button");
+      btnEditar.className = "secondary";
+      btnEditar.textContent = "✎";
+      btnEditar.title = "Renombrar";
+      btnEditar.style.padding = "2px 7px";
+      btnEditar.style.fontSize = "0.8rem";
+      btnEditar.addEventListener("click", (e) => {
+        e.stopPropagation();
+        editarCarpeta(carpeta);
+      });
+
+      const btnBorrar = document.createElement("button");
+      btnBorrar.className = "secondary";
+      btnBorrar.textContent = "🗑";
+      btnBorrar.title = "Eliminar";
+      btnBorrar.style.padding = "2px 7px";
+      btnBorrar.style.fontSize = "0.8rem";
+      btnBorrar.addEventListener("click", (e) => {
+        e.stopPropagation();
+        eliminarCarpeta(carpeta);
+      });
+
+      acciones.appendChild(btnEditar);
+      acciones.appendChild(btnBorrar);
+      li.appendChild(nombreSpan);
+      li.appendChild(acciones);
       ul.appendChild(li);
     });
 
     // Si no hay carpeta seleccionada todavía, seleccionamos la primera automáticamente
     if (carpetaActualId === null && data.length > 0) {
       seleccionarCarpeta(data[0].id, data[0].nombre);
+    }
+  }
+
+  async function editarCarpeta(carpeta) {
+    if (!checarCliente()) return;
+
+    const nuevoNombre = prompt("Nuevo nombre para la carpeta:", carpeta.nombre);
+    if (nuevoNombre === null) return; // canceló
+    const nombreLimpio = nuevoNombre.trim();
+    if (!nombreLimpio) {
+      alert("El nombre no puede quedar vacío.");
+      return;
+    }
+    if (nombreLimpio === carpeta.nombre) return; // sin cambios
+
+    try {
+      const { error } = await supabaseClient
+        .from("carpetas")
+        .update({ nombre: nombreLimpio })
+        .eq("id", carpeta.id);
+
+      if (error) throw error;
+
+      await cargarCarpetas();
+      if (carpetaActualId === carpeta.id) {
+        document.getElementById("carpeta-actual-gastos").textContent = "· " + nombreLimpio;
+        document.getElementById("carpeta-actual-tareas").textContent = "· " + nombreLimpio;
+      }
+      registrarHistorial("modificar", "carpeta", { id: carpeta.id, antes: carpeta.nombre, despues: nombreLimpio });
+    } catch (err) {
+      console.error("Error renombrando carpeta:", err);
+      alert("No se pudo renombrar la carpeta: " + err.message);
+    }
+  }
+
+  async function eliminarCarpeta(carpeta) {
+    if (!checarCliente()) return;
+
+    const confirmado = confirm(
+      `¿Eliminar la carpeta "${carpeta.nombre}"? Esto también borra sus gastos y tareas asociadas.`
+    );
+    if (!confirmado) return;
+
+    try {
+      const { error } = await supabaseClient
+        .from("carpetas")
+        .delete()
+        .eq("id", carpeta.id);
+
+      if (error) throw error;
+
+      const eraLaActual = carpetaActualId === carpeta.id;
+      if (eraLaActual) {
+        carpetaActualId = null;
+        document.getElementById("carpeta-actual-gastos").textContent = "";
+        document.getElementById("carpeta-actual-tareas").textContent = "";
+        document.getElementById("lista-gastos").innerHTML = "";
+        document.getElementById("lista-tareas").innerHTML = "";
+      }
+
+      await cargarCarpetas();
+      registrarHistorial("eliminar", "carpeta", { id: carpeta.id, nombre: carpeta.nombre });
+    } catch (err) {
+      console.error("Error eliminando carpeta:", err);
+      alert("No se pudo eliminar la carpeta: " + err.message);
     }
   }
 
@@ -644,6 +750,9 @@
 
   function describirDetalle(detalles) {
     if (!detalles || typeof detalles !== "object") return "";
+    if (detalles.antes && detalles.despues) {
+      return ` — "${escapeHtml(detalles.antes)}" → "${escapeHtml(detalles.despues)}"`;
+    }
     if (detalles.concepto) {
       return ` — "${escapeHtml(detalles.concepto)}"` + (detalles.monto != null ? ` ($${Number(detalles.monto).toFixed(2)})` : "");
     }

@@ -110,6 +110,7 @@
 
   .badge-cat, .badge-prioridad{ font-size: 0.72rem; padding: 2px 7px; border-radius: 999px; font-weight: 600; text-transform: capitalize; display: inline-block; }
   .badge-cat{ background: var(--acento-tinte); color: var(--ink-soft); }
+  .badge-admin{ background: var(--gold-tint); color: var(--gold); border: 1px solid var(--gold); }
   .prioridad-alta{ background: var(--danger-tint); color: var(--danger); }
   .prioridad-media{ background: var(--gold-tint); color: var(--gold); }
   .prioridad-baja{ background: var(--acento-tinte); color: var(--ink-soft); }
@@ -132,8 +133,9 @@
   #historial{ font-size: 0.85rem; color: var(--ink-soft); }
   #historial div{ padding: 9px 2px; border-bottom: 1px solid var(--line); }
 
-  .bottom-nav{ position: fixed; left: 0; right: 0; bottom: 0; max-width: 560px; margin: 0 auto; background: var(--card); border-top: 1px solid var(--line); display:flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 20; }
-  .nav-btn{ flex:1; background: transparent; color: var(--ink-soft); border:none; display:flex; flex-direction: column; align-items:center; gap: 3px; padding: 7px 2px; font-size: 0.65rem; font-weight: 600; border-radius: var(--radius-sm); }
+  .bottom-nav{ position: fixed; left: 0; right: 0; bottom: 0; max-width: 560px; margin: 0 auto; background: var(--card); border-top: 1px solid var(--line); display:flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 20; overflow-x: auto; scrollbar-width: none; }
+  .bottom-nav::-webkit-scrollbar{ display: none; }
+  .nav-btn{ flex: 1 0 auto; min-width: 70px; background: transparent; color: var(--ink-soft); border:none; display:flex; flex-direction: column; align-items:center; gap: 3px; padding: 7px 2px; font-size: 0.65rem; font-weight: 600; border-radius: var(--radius-sm); }
   .nav-btn.active{ color: var(--acento); background: var(--acento-tinte); }
   .nav-btn svg{ width:20px; height:20px; }
 
@@ -168,7 +170,7 @@
 
   .torta-contenedor{ display:flex; justify-content:center; padding: 10px 0 18px; }
   .torta{ width: 170px; height: 170px; border-radius: 50%; position: relative; }
-  .torta::after{ content:""; position:absolute; inset: 22%; background: var(--card); border-radius: 50%; }
+  .torta::after{ content:"absolute"; inset: 22%; background: var(--card); border-radius: 50%; }
   .lista-leyenda{ list-style:none; margin:0; padding:0; }
   .lista-leyenda li{ display:flex; align-items:center; gap:10px; padding: 8px 0; font-size: 0.88rem; }
   .punto-leyenda{ width: 11px; height: 11px; border-radius: 50%; flex-shrink:0; }
@@ -193,77 +195,40 @@
   /* DISEÑO PARA ESCRITORIO (PC / TABLET)      */
   /* ========================================= */
   @media (min-width: 768px) {
-    .app-shell {
-      max-width: 1080px; 
-      padding-left: 240px; 
-      padding-bottom: 40px;
-      margin: 0 auto;
-      position: relative;
-    }
+    .app-shell { max-width: 1080px; padding-left: 240px; padding-bottom: 40px; margin: 0 auto; position: relative; }
     
-    /* El menú inferior se vuelve lateral */
     .bottom-nav {
-      position: fixed;
-      top: 0; bottom: 0; right: auto; left: 0;
-      width: 220px; height: 100vh;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 40px 14px;
-      border-top: none;
-      border-right: 1px solid var(--line);
-      background: var(--paper);
+      position: fixed; top: 0; bottom: 0; right: auto; left: 0; width: 220px; height: 100vh;
+      flex-direction: column; justify-content: flex-start; padding: 40px 14px;
+      border-top: none; border-right: 1px solid var(--line); background: var(--paper);
     }
-    
-    /* Centrado para monitores grandes */
     @media (min-width: 1080px) { .bottom-nav { left: calc(50% - 540px); } }
 
-    .nav-btn {
-      flex: none; flex-direction: row; width: 100%;
-      padding: 14px 18px; margin-bottom: 8px;
-      border-radius: var(--radius-md);
-      font-size: 0.95rem; text-align: left;
-    }
+    .nav-btn { flex: none; flex-direction: row; width: 100%; padding: 14px 18px; margin-bottom: 8px; border-radius: var(--radius-md); font-size: 0.95rem; text-align: left; }
     .nav-btn svg { margin-right: 12px; }
 
-    /* Forzar que distribuyan en grilla SOLO los paneles si están activos */
     #panel-gastos, #panel-ingresos, 
     section.view.active[data-view="tareas"] .contenido-carpeta, 
     section.view.active[data-view="notas"] .contenido-carpeta,
-    section.view.active[data-view="archivos"] {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 24px;
-      align-items: start;
-    }
+    section.view.active[data-view="archivos"] { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
 
-    section.view.active[data-view="resumen"] { 
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: start;
-    }
+    section.view.active[data-view="resumen"] { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
     
+    /* El Perfil en PC se centra y queda lindo */
+    section.view.active[data-view="perfil"] { display: block; max-width: 500px; margin: 0 auto; }
+
     .card { margin-bottom: 0; height: 100%; }
     
-    /* Tarjetas que deben ocupar el ancho total */
     #card-balance, section[data-view="historial"] .card, .placeholder-carpeta,
-    #card-completadas, #resumen-carpeta-actual-card, #segmentado-finanzas, #card-resumen-gastos { 
-      grid-column: 1 / -1; 
-    }
+    #card-completadas, #resumen-carpeta-actual-card, #segmentado-finanzas, #card-resumen-gastos { grid-column: 1 / -1; }
     
-    /* Modales centrados en PC (ahora sí, invisibles por defecto) */
     .sheet {
       max-width: 480px; left: 50%; top: 50%; bottom: auto; right: auto; margin: 0;
-      transform: translate(-50%, -40%) scale(0.95); 
-      opacity: 0; pointer-events: none; /* Las oculta completamente */
-      border-radius: var(--radius-lg); padding: 30px;
-      box-shadow: 0 10px 50px rgba(0,0,0,0.5); max-height: 85vh;
+      transform: translate(-50%, -40%) scale(0.95); opacity: 0; pointer-events: none;
+      border-radius: var(--radius-lg); padding: 30px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); max-height: 85vh;
       transition: transform .2s ease, opacity .2s ease;
     }
-    .sheet.open { 
-      transform: translate(-50%, -50%) scale(1); 
-      opacity: 1; pointer-events: auto; /* Las muestra suavemente */
-    }
+    .sheet.open { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
     .sheet-handle { display: none; }
   }
 </style>
@@ -509,6 +474,27 @@
       </div>
     </section>
 
+    <!-- PERFIL (¡NUEVO!) -->
+    <section class="view" data-view="perfil">
+      <div class="card">
+        <h2>Mis Datos</h2>
+        <div style="display:flex; flex-direction:column; gap:4px; margin-bottom: 8px;">
+          <span style="font-size: 0.82rem; color: var(--ink-soft);">Email conectado</span>
+          <strong id="perfil-email-text" style="font-size: 1.05rem;">Cargando...</strong>
+          <span class="badge-cat" id="perfil-rol-badge" style="width: fit-content; margin-top: 4px;">Usuario</span>
+        </div>
+      </div>
+
+      <!-- ESTE PANEL SOLO LO VES VOS SI SOS ADMIN -->
+      <div class="card" id="panel-crear-usuarios" style="display:none; border-color: var(--gold); background: var(--gold-tint);">
+        <h2 style="color: var(--gold); border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 12px; margin-bottom: 16px;">👑 Panel de Administrador</h2>
+        <p style="font-size: 0.88rem; color: var(--ink); margin: 0 0 16px; opacity: 0.8;">Agregá una persona a la plataforma para que pueda acceder a las carpetas.</p>
+        <input type="email" id="nuevo-user-email" placeholder="Email del nuevo usuario" style="background: var(--card);" />
+        <input type="password" id="nuevo-user-pass" placeholder="Contraseña temporal" style="background: var(--card);" />
+        <button id="btn-crear-nuevo-user" style="background: var(--gold); color: #17181A; margin-top: 8px;">Enviar Invitación</button>
+      </div>
+    </section>
+
   </main>
 
   <nav class="bottom-nav">
@@ -535,6 +521,10 @@
     <button class="nav-btn" data-view="historial">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
       Historial
+    </button>
+    <button class="nav-btn" data-view="perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
     </button>
   </nav>
 
@@ -625,6 +615,7 @@
   function cargarDatosIniciales() {
     if (appYaCargada) return;
     appYaCargada = true;
+    cargarPerfil();
     cargarCarpetas();
     cargarArchivos();
     cargarHistorial();
@@ -646,6 +637,7 @@
   let carpetaActualId = null;
   let carpetaActualNombre = null;
   let cacheGastos = [], cacheIngresos = [], cacheTareas = [], cacheNotas = [], cacheArchivos = [];
+  let usuarioDatos = null;
 
   function checarCliente() {
     if (!supabaseClient) { alert("No hay conexión con Supabase."); return false; }
@@ -706,6 +698,35 @@
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  // --- PERFIL Y ADMIN ---
+  async function cargarPerfil() {
+    if (!supabaseClient) return;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+    
+    // Obtenemos los datos extendidos del perfil
+    const { data: perfil } = await supabaseClient.from('perfiles').select('*').eq('id', user.id).single();
+    
+    document.getElementById("perfil-email-text").textContent = user.email;
+    
+    const badge = document.getElementById("perfil-rol-badge");
+    const panelAdmin = document.getElementById("panel-crear-usuarios");
+
+    if (perfil && perfil.rol === 'admin') {
+      badge.textContent = "Administrador";
+      badge.classList.add("badge-admin");
+      badge.classList.remove("badge-cat");
+      panelAdmin.style.display = "block"; // Se muestra el panel!
+    } else {
+      badge.textContent = "Usuario";
+      panelAdmin.style.display = "none";
+    }
+  }
+
+  document.getElementById("btn-crear-nuevo-user").addEventListener("click", () => {
+    alert("¡Atención!\n\nPor máxima seguridad, tu web no puede generar contraseñas y cuentas de otras personas directamente.\n\nPara invitar a alguien hoy mismo hacé esto:\n1. Entrá a Supabase (supabase.com/dashboard)\n2. Andá a Authentication > Users\n3. Hacé clic en 'Add user' y elegí 'Send invitation'.\n\n(Si más adelante querés que este botón funcione sí o sí, avisame y programamos una Edge Function en el servidor).");
+  });
 
   // --- CARPETAS ---
   async function cargarCarpetas() {

@@ -176,7 +176,6 @@
       <h2>Gastos <span id="carpeta-actual-gastos" style="color:var(--ink-dim); font-weight:400"></span></h2>
       <input type="text" id="input-concepto" placeholder="Concepto" />
       <input type="number" id="input-monto" placeholder="Monto" step="0.01" />
-      <input type="file" id="input-comprobante" />
       <button id="btn-guardar-gasto">Guardar Gasto</button>
       <ul class="lista-items" id="lista-gastos"></ul>
     </div>
@@ -186,6 +185,13 @@
       <input type="text" id="input-tarea" placeholder="Título de la tarea" />
       <button id="btn-agregar-tarea">Agregar Tarea</button>
       <ul class="lista-items" id="lista-tareas"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Archivos</h2>
+      <input type="file" id="input-archivo" />
+      <button id="btn-subir-archivo">Subir Archivo</button>
+      <ul class="lista-items" id="lista-archivos"></ul>
     </div>
 
     <div class="panel">
@@ -556,7 +562,6 @@
 
     const conceptoInput = document.getElementById("input-concepto");
     const montoInput = document.getElementById("input-monto");
-    const fileInput = document.getElementById("input-comprobante");
 
     const concepto = conceptoInput.value.trim();
     const monto = parseFloat(montoInput.value);
@@ -574,30 +579,11 @@
     boton.disabled = true;
 
     try {
-      let comprobanteUrl = null;
-
-      const archivo = fileInput.files[0];
-      if (archivo) {
-        const nombreArchivo = `${Date.now()}_${archivo.name}`.replace(/\s+/g, "_");
-        const { error: uploadError } = await supabaseClient.storage
-          .from("adjuntos")
-          .upload(nombreArchivo, archivo);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = supabaseClient.storage
-          .from("adjuntos")
-          .getPublicUrl(nombreArchivo);
-
-        comprobanteUrl = urlData.publicUrl;
-      }
-
       const { error } = await supabaseClient.from("gastos").insert([
         {
           carpeta_id: carpetaActualId,
           concepto: concepto,
           monto: monto,
-          comprobante_url: comprobanteUrl,
         },
       ]);
 
@@ -605,7 +591,6 @@
 
       conceptoInput.value = "";
       montoInput.value = "";
-      fileInput.value = "";
       await cargarGastos();
       registrarHistorial("crear", "gasto", { concepto, monto });
     } catch (err) {
@@ -717,6 +702,118 @@
   }
 
   // ---------------------------------------------------------------
+  // 6.5) ARCHIVOS PROPIOS (bucket "adjuntos", independiente de gastos)
+  // ---------------------------------------------------------------
+  async function cargarArchivos() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient.storage
+      .from("adjuntos")
+      .list("", { sortBy: { column: "created_at", order: "desc" } });
+
+    const ul = document.getElementById("lista-archivos");
+    ul.innerHTML = "";
+
+    if (error) {
+      console.error("Error cargando archivos:", error);
+      ul.innerHTML = '<li class="vacio">Error cargando archivos.</li>';
+      return;
+    }
+
+    const archivos = (data || []).filter((f) => f.name && !f.name.endsWith("/"));
+
+    if (archivos.length === 0) {
+      ul.innerHTML = '<li class="vacio">No subiste archivos todavía.</li>';
+      return;
+    }
+
+    archivos.forEach((archivo) => {
+      const { data: urlData } = supabaseClient.storage
+        .from("adjuntos")
+        .getPublicUrl(archivo.name);
+
+      const li = document.createElement("li");
+
+      const nombreVisible = archivo.name.replace(/^\d+_/, "");
+      const link = document.createElement("a");
+      link.className = "comprobante";
+      link.href = urlData.publicUrl;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = nombreVisible;
+      link.style.color = "var(--ink)";
+      link.style.textDecoration = "none";
+
+      const acciones = document.createElement("span");
+      acciones.style.display = "flex";
+      acciones.style.gap = "8px";
+      acciones.style.alignItems = "center";
+
+      const btnBorrar = document.createElement("button");
+      btnBorrar.className = "secondary";
+      btnBorrar.textContent = "Eliminar";
+      btnBorrar.style.padding = "4px 8px";
+      btnBorrar.style.fontSize = "0.78rem";
+      btnBorrar.addEventListener("click", () => eliminarArchivo(archivo.name, nombreVisible));
+
+      acciones.appendChild(btnBorrar);
+      li.appendChild(link);
+      li.appendChild(acciones);
+      ul.appendChild(li);
+    });
+  }
+
+  async function subirArchivo() {
+    if (!checarCliente()) return;
+
+    const fileInput = document.getElementById("input-archivo");
+    const archivo = fileInput.files[0];
+    if (!archivo) {
+      alert("Elegí un archivo primero.");
+      return;
+    }
+
+    const boton = document.getElementById("btn-subir-archivo");
+    boton.disabled = true;
+
+    try {
+      const nombreArchivo = `${Date.now()}_${archivo.name}`.replace(/\s+/g, "_");
+      const { error } = await supabaseClient.storage
+        .from("adjuntos")
+        .upload(nombreArchivo, archivo);
+
+      if (error) throw error;
+
+      fileInput.value = "";
+      await cargarArchivos();
+      registrarHistorial("crear", "archivo", { nombre: archivo.name });
+    } catch (err) {
+      console.error("Error subiendo archivo:", err);
+      alert("No se pudo subir el archivo: " + err.message);
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  async function eliminarArchivo(nombreInterno, nombreVisible) {
+    if (!checarCliente()) return;
+
+    const confirmado = confirm(`¿Eliminar el archivo "${nombreVisible}"?`);
+    if (!confirmado) return;
+
+    try {
+      const { error } = await supabaseClient.storage.from("adjuntos").remove([nombreInterno]);
+      if (error) throw error;
+
+      await cargarArchivos();
+      registrarHistorial("eliminar", "archivo", { nombre: nombreVisible });
+    } catch (err) {
+      console.error("Error eliminando archivo:", err);
+      alert("No se pudo eliminar el archivo: " + err.message);
+    }
+  }
+
+  // ---------------------------------------------------------------
   // 7) HISTORIAL
   // ---------------------------------------------------------------
   async function cargarHistorial() {
@@ -767,6 +864,7 @@
   document.getElementById("btn-crear-carpeta").addEventListener("click", crearCarpeta);
   document.getElementById("btn-guardar-gasto").addEventListener("click", guardarGasto);
   document.getElementById("btn-agregar-tarea").addEventListener("click", agregarTarea);
+  document.getElementById("btn-subir-archivo").addEventListener("click", subirArchivo);
 
   // Enter para confirmar en los inputs de texto principales
   document.getElementById("input-carpeta").addEventListener("keydown", (e) => {
@@ -789,6 +887,7 @@
   // ---------------------------------------------------------------
   if (supabaseClient) {
     cargarCarpetas();
+    cargarArchivos();
     cargarHistorial();
   }
 })();

@@ -184,7 +184,6 @@
     cursor: pointer;
     width: 100%;
   }
-  :root[data-theme="dark"] button{ color: #17181A; }
   button:active{ transform: scale(0.98); }
   button:disabled{ opacity: 0.55; cursor: not-allowed; }
   button.secondary{
@@ -201,6 +200,7 @@
     background: transparent;
     border-radius: 999px;
     display:flex; align-items:center; justify-content:center;
+    color: var(--ink-soft);
   }
   button.icon-btn:active{ background: var(--acento-tinte); }
   button.danger-text{ color: var(--danger); border-color: var(--danger-tint); }
@@ -1161,26 +1161,51 @@
       pendientes.forEach((t) => {
         const esVencida = t.fecha_limite && t.fecha_limite < hoyISO();
         const li = document.createElement("li");
+        
+        // Estilo especial para permitir caja de descripción debajo
+        li.style.flexDirection = "column";
+        li.style.alignItems = "stretch";
+        
         li.innerHTML = `
-          <label class="item-check">
-            <input type="checkbox" class="chk-tarea" />
-            <div class="item-info">
-              <span class="item-titulo">${escapeHtml(t.titulo)}</span>
-              ${t.descripcion ? `<span class="item-sub">${escapeHtml(t.descripcion)}</span>` : ''}
-              <div class="item-sub">
-                <span class="badge-prioridad prioridad-${t.prioridad || 'media'}">${t.prioridad || 'media'}</span>
-                ${t.fecha_limite ? `<span class="${esVencida ? 'vencida' : ''}">Vence: ${t.fecha_limite}</span>` : ''}
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; gap:10px;">
+            <label class="item-check" style="flex:1;">
+              <input type="checkbox" class="chk-tarea" />
+              <div class="item-info">
+                <span class="item-titulo">${escapeHtml(t.titulo)}</span>
+                <div class="item-sub">
+                  <span class="badge-prioridad prioridad-${t.prioridad || 'media'}">${t.prioridad || 'media'}</span>
+                  ${t.fecha_limite ? `<span class="${esVencida ? 'vencida' : ''}">Vence: ${t.fecha_limite}</span>` : ''}
+                </div>
               </div>
+            </label>
+            <div class="fila-derecha">
+              ${t.descripcion ? `<button class="icon-btn btn-toggle-desc" title="Ver detalle"><svg style="transition: transform 0.2s ease;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>` : ''}
+              <button class="icon-btn btn-editar-tarea"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
+              <button class="icon-btn danger-text btn-eliminar-tarea"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
             </div>
-          </label>
-          <div class="fila-derecha">
-            <button class="icon-btn btn-editar-tarea"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
-            <button class="icon-btn danger-text btn-eliminar-tarea"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
           </div>
+          ${t.descripcion ? `<div class="box-desc" style="display:none; margin-top:10px; padding:12px; background:var(--paper); border: 1px solid var(--line); border-radius:var(--radius-sm); font-size:0.88rem; color:var(--ink-soft); white-space:pre-wrap;">${escapeHtml(t.descripcion)}</div>` : ''}
         `;
+
         li.querySelector(".chk-tarea").addEventListener("change", () => alternarTarea(t.id, t.titulo, true));
         li.querySelector(".btn-editar-tarea").addEventListener("click", () => abriModalEditarTarea(t));
         li.querySelector(".btn-eliminar-tarea").addEventListener("click", () => eliminarTarea(t));
+        
+        // Logica para desplegar descripción
+        if(t.descripcion) {
+          li.querySelector(".btn-toggle-desc").addEventListener("click", (e) => {
+            const box = li.querySelector(".box-desc");
+            const icon = e.currentTarget.querySelector("svg");
+            if(box.style.display === "none") {
+              box.style.display = "block";
+              icon.style.transform = "rotate(180deg)";
+            } else {
+              box.style.display = "none";
+              icon.style.transform = "rotate(0deg)";
+            }
+          });
+        }
+        
         ulPendientes.appendChild(li);
       });
     }
@@ -1236,7 +1261,7 @@
     const cuerpo = document.getElementById("cuerpo-modal-editar");
     cuerpo.innerHTML = `
       <input type="text" id="edit-tarea-titulo" value="${escapeHtml(t.titulo)}" />
-      <textarea id="edit-tarea-desc">${escapeHtml(t.descripcion || '')}</textarea>
+      <textarea id="edit-tarea-desc" placeholder="Descripción...">${escapeHtml(t.descripcion || '')}</textarea>
       <div class="fila-doble">
         <input type="date" id="edit-tarea-fecha" value="${t.fecha_limite || ''}" />
         <select id="edit-tarea-prioridad">

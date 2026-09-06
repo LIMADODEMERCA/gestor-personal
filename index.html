@@ -1,230 +1,625 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Gestor Personal</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #f0f2f5; margin: 0; padding: 20px; color: #1c1e21; }
-    .container { max-width: 900px; margin: 0 auto; }
-    header { background: #0070f3; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    h2 { margin-top: 0; font-size: 1.2rem; color: #0070f3; }
-    input, select, button, textarea { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; }
-    button { background: #0070f3; color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
-    button:hover { background: #0051a2; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    ul { list-style: none; padding: 0; }
-    li { background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #0070f3; }
-    .badge { font-size: 0.8rem; background: #e4e6eb; padding: 2px 6px; border-radius: 4px; float: right; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gestor Personal</title>
+
+<!-- Cliente de Supabase (debe cargar ANTES que nuestro script) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{
+    --bg: #10141a;
+    --card: #171d25;
+    --card-2: #1d242d;
+    --line: #2a323c;
+    --ink: #edf0f3;
+    --ink-dim: #9aa5b1;
+    --accent: #e8a33d;
+    --accent-ink: #10141a;
+    --danger: #d1654f;
+    --ok: #4caf7d;
+    --radius: 10px;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.45;
+  }
+  header{
+    padding: 28px 24px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  header h1{
+    margin:0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  #status-bar{
+    font-size: 0.85rem;
+    color: var(--ink-dim);
+    margin-top: 6px;
+  }
+  #status-bar.error{ color: var(--danger); }
+  #status-bar.ok{ color: var(--ok); }
+
+  main{
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 760px){
+    main{ grid-template-columns: 1fr; }
+  }
+
+  .panel{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .panel h2{
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  input, select, button, textarea{
+    font-family: inherit;
+    font-size: 0.92rem;
+  }
+  input[type=text], input[type=number], input[type=file], select, textarea{
+    width: 100%;
+    background: var(--card-2);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 9px 10px;
+    margin-bottom: 8px;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  button{
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover{ filter: brightness(1.08); }
+  button:disabled{ opacity: 0.6; cursor: not-allowed; }
+  button.secondary{
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    font-weight: 500;
+  }
+
+  #lista-carpetas{ list-style:none; padding:0; margin:0; }
+  #lista-carpetas li{
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    color: var(--ink-dim);
+    border: 1px solid transparent;
+  }
+  #lista-carpetas li:hover{ background: var(--card-2); }
+  #lista-carpetas li.activa{
+    background: var(--card-2);
+    color: var(--ink);
+    border-color: var(--accent);
+  }
+
+  .content-panels{
+    display: grid;
+    gap: 20px;
+  }
+  .lista-items{ list-style:none; padding:0; margin: 10px 0 0; }
+  .lista-items li{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+  }
+  .lista-items li:last-child{ border-bottom: none; }
+  .item-monto{ color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .item-check{ display:flex; align-items:center; gap:8px; }
+  .completada{ text-decoration: line-through; color: var(--ink-dim); }
+  .vacio{ color: var(--ink-dim); font-size: 0.88rem; padding: 6px 0; }
+  a.comprobante{ color: var(--accent); font-size: 0.8rem; }
+
+  #historial{
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+  }
+  #historial div{ padding: 4px 0; border-bottom: 1px solid var(--line); }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>🗂️ Mi Gestor Personal</h1>
-      <p>Gastos, Tareas, Apuntes e Historial de Movimientos</p>
-    </header>
 
-    <div class="grid">
-      <div class="card">
-        <h2>Nueva Carpeta</h2>
-        <input type="text" id="carpeta-nombre" placeholder="Nombre de carpeta (ej: Casa, Estudio)">
-        <button id="btn-carpeta" onclick="crearCarpeta()">Crear Carpeta</button>
-        <ul id="lista-carpetas"></ul>
-      </div>
+<header>
+  <h1>Gestor Personal</h1>
+  <div id="status-bar">Conectando con Supabase...</div>
+</header>
 
-      <div class="card">
-        <h2>Registrar Gasto</h2>
-        <select id="gasto-carpeta"></select>
-        <input type="text" id="gasto-concepto" placeholder="Concepto (ej: Compra Supermercado)">
-        <input type="number" id="gasto-monto" placeholder="Monto ($)">
-        <label>Comprobante / Ticket (Imagen):</label>
-        <input type="file" id="gasto-foto" accept="image/*">
-        <button id="btn-gasto" onclick="guardarGasto()">Guardar Gasto</button>
-      </div>
+<main>
+  <!-- Columna izquierda: Carpetas -->
+  <section class="panel">
+    <h2>Carpetas</h2>
+    <input type="text" id="input-carpeta" placeholder="Nombre de la carpeta" />
+    <button id="btn-crear-carpeta" style="width:100%">Crear Carpeta</button>
+    <ul id="lista-carpetas" style="margin-top:14px"></ul>
+  </section>
 
-      <div class="card">
-        <h2>Nueva Tarea / Recordatorio</h2>
-        <select id="tarea-carpeta"></select>
-        <input type="text" id="tarea-titulo" placeholder="Título de la tarea">
-        <button id="btn-tarea" onclick="guardarTarea()">Agregar Tarea</button>
-        <ul id="lista-tareas"></ul>
-      </div>
+  <!-- Columna derecha: Gastos, Tareas, Historial -->
+  <section class="content-panels">
+    <div class="panel">
+      <h2>Gastos <span id="carpeta-actual-gastos" style="color:var(--ink-dim); font-weight:400"></span></h2>
+      <input type="text" id="input-concepto" placeholder="Concepto" />
+      <input type="number" id="input-monto" placeholder="Monto" step="0.01" />
+      <input type="file" id="input-comprobante" />
+      <button id="btn-guardar-gasto">Guardar Gasto</button>
+      <ul class="lista-items" id="lista-gastos"></ul>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
-      <h2>📋 Historial de Movimientos (Fecha y Hora)</h2>
-      <ul id="lista-historial"></ul>
+    <div class="panel">
+      <h2>Tareas <span id="carpeta-actual-tareas" style="color:var(--ink-dim); font-weight:400"></span></h2>
+      <input type="text" id="input-tarea" placeholder="Título de la tarea" />
+      <button id="btn-agregar-tarea">Agregar Tarea</button>
+      <ul class="lista-items" id="lista-tareas"></ul>
     </div>
-  </div>
 
-  <script>
-    window.addEventListener('error', function(e) {
-      alert("⚠️ Error en ejecución: " + e.message);
+    <div class="panel">
+      <h2>Historial de movimientos</h2>
+      <div id="historial"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------------------------------------------------------------
+  // 1) CONFIGURACIÓN E INICIALIZACIÓN DEL CLIENTE
+  //    OJO: usamos "supabaseClient", NUNCA "supabase", para no chocar
+  //    con el objeto global que crea el <script> del CDN.
+  // ---------------------------------------------------------------
+  const SUPABASE_URL = "https://hadcxjjvxqkcuifytxpl.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZGN4amp2eHFrY3VpZnl0eHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjQ1OTQsImV4cCI6MjEwNDI0MDU5NH0.x-rUxLGpw9wP3Dp5Epiie5N2IbwWDtHIoV_cTqtvU_4";
+
+  const statusBar = document.getElementById("status-bar");
+  let supabaseClient = null;
+
+  function setStatus(msg, tipo) {
+    statusBar.textContent = msg;
+    statusBar.className = tipo || "";
+  }
+
+  try {
+    if (!window.supabase || typeof window.supabase.createClient !== "function") {
+      throw new Error("El script del CDN de Supabase no se cargó (window.supabase no existe).");
+    }
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    setStatus("Conectado a Supabase.", "ok");
+  } catch (err) {
+    console.error("Error inicializando Supabase:", err);
+    setStatus("Error al conectar con Supabase: " + err.message, "error");
+    // No hacemos "return" del IIFE completo para que el resto del archivo
+    // no rompa, pero cada función de abajo revisa supabaseClient antes de usarlo.
+  }
+
+  // ---------------------------------------------------------------
+  // 2) ESTADO LOCAL
+  // ---------------------------------------------------------------
+  let carpetaActualId = null;
+
+  // ---------------------------------------------------------------
+  // 3) HELPERS
+  // ---------------------------------------------------------------
+  function checarCliente() {
+    if (!supabaseClient) {
+      alert("No hay conexión con Supabase. Revisá la consola del navegador (F12).");
+      return false;
+    }
+    return true;
+  }
+
+  async function registrarHistorial(tipoAccion, entidad, detalles) {
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient
+      .from("historial_movimientos")
+      .insert([{ tipo_accion: tipoAccion, entidad: entidad, detalles: detalles || {} }]);
+    if (error) {
+      console.error("Error guardando historial:", error);
+    } else {
+      cargarHistorial();
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  // ---------------------------------------------------------------
+  // 4) CARPETAS
+  // ---------------------------------------------------------------
+  async function cargarCarpetas() {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient
+      .from("carpetas")
+      .select("*")
+      .order("creado_en", { ascending: false });
+
+    if (error) {
+      console.error("Error cargando carpetas:", error);
+      setStatus("Error cargando carpetas: " + error.message, "error");
+      return;
+    }
+
+    const ul = document.getElementById("lista-carpetas");
+    ul.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      ul.innerHTML = '<li class="vacio">Todavía no hay carpetas.</li>';
+      return;
+    }
+
+    data.forEach((carpeta) => {
+      const li = document.createElement("li");
+      li.textContent = carpeta.nombre;
+      li.dataset.id = carpeta.id;
+      if (carpeta.id === carpetaActualId) li.classList.add("activa");
+      li.addEventListener("click", () => seleccionarCarpeta(carpeta.id, carpeta.nombre));
+      ul.appendChild(li);
     });
 
-    const SUPABASE_URL = "https://vluozfvttzowdmkgxebm.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdW96ZnZ0dHpvd2Rta2d4ZWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjMxODcsImV4cCI6MjEwNDIzOTE4N30.46fb_h8H7TnKgFqorofIBgd29tM6374AFLcSnzsvW6M";
+    // Si no hay carpeta seleccionada todavía, seleccionamos la primera automáticamente
+    if (carpetaActualId === null && data.length > 0) {
+      seleccionarCarpeta(data[0].id, data[0].nombre);
+    }
+  }
 
-    if (!window.supabase) {
-      alert("⚠️ No se cargó la librería de Supabase.");
+  function seleccionarCarpeta(id, nombre) {
+    carpetaActualId = id;
+    document.querySelectorAll("#lista-carpetas li").forEach((li) => {
+      li.classList.toggle("activa", Number(li.dataset.id) === Number(id));
+    });
+    document.getElementById("carpeta-actual-gastos").textContent = "· " + nombre;
+    document.getElementById("carpeta-actual-tareas").textContent = "· " + nombre;
+    cargarGastos();
+    cargarTareas();
+  }
+
+  async function crearCarpeta() {
+    if (!checarCliente()) return;
+
+    const input = document.getElementById("input-carpeta");
+    const nombre = input.value.trim();
+    if (!nombre) {
+      alert("Escribí un nombre para la carpeta.");
+      return;
     }
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const boton = document.getElementById("btn-crear-carpeta");
+    boton.disabled = true;
 
-    async function cargarDatos() {
-      try {
-        const { data: carpetas, error: errC } = await supabase.from('carpetas').select('*');
-        if (errC) console.error("Error carpetas:", errC);
+    try {
+      const { data, error } = await supabaseClient
+        .from("carpetas")
+        .insert([{ nombre: nombre }])
+        .select();
 
-        const selectGasto = document.getElementById('gasto-carpeta');
-        const selectTarea = document.getElementById('tarea-carpeta');
-        const listaCarpetas = document.getElementById('lista-carpetas');
+      if (error) throw error;
 
-        selectGasto.innerHTML = '<option value="">Sin carpeta</option>';
-        selectTarea.innerHTML = '<option value="">Sin carpeta</option>';
-        listaCarpetas.innerHTML = '';
-
-        carpetas?.forEach(c => {
-          selectGasto.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-          selectTarea.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-          listaCarpetas.innerHTML += `<li>📁 ${c.nombre}</li>`;
-        });
-
-        const { data: tareas, error: errT } = await supabase.from('tareas').select('*').order('creado_en', { ascending: false });
-        if (errT) console.error("Error tareas:", errT);
-        const listaTareas = document.getElementById('lista-tareas');
-        listaTareas.innerHTML = '';
-        tareas?.forEach(t => {
-          listaTareas.innerHTML += `<li>${t.completada ? '✅' : '📌'} ${t.titulo}</li>`;
-        });
-
-        const { data: historial, error: errH } = await supabase.from('historial_movimientos').select('*').order('fecha_hora', { ascending: false });
-        if (errH) console.error("Error historial:", errH);
-        const listaHistorial = document.getElementById('lista-historial');
-        listaHistorial.innerHTML = '';
-        historial?.forEach(h => {
-          const fecha = new Date(h.fecha_hora).toLocaleString('es-AR');
-          listaHistorial.innerHTML += `<li>
-            <span class="badge">${fecha}</span>
-            <strong>${h.tipo_accion}</strong> en <em>${h.entidad}</em>: ${JSON.stringify(h.detalles)}
-          </li>`;
-        });
-      } catch (err) {
-        alert("Error cargando datos: " + err.message);
+      input.value = "";
+      await cargarCarpetas();
+      if (data && data[0]) {
+        seleccionarCarpeta(data[0].id, data[0].nombre);
       }
+      registrarHistorial("crear", "carpeta", { nombre: nombre });
+    } catch (err) {
+      console.error("Error creando carpeta:", err);
+      alert("No se pudo crear la carpeta: " + err.message);
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // 5) GASTOS (incluye subida de comprobante al bucket "adjuntos")
+  // ---------------------------------------------------------------
+  async function cargarGastos() {
+    if (!supabaseClient || carpetaActualId === null) return;
+
+    const { data, error } = await supabaseClient
+      .from("gastos")
+      .select("*")
+      .eq("carpeta_id", carpetaActualId)
+      .order("creado_en", { ascending: false });
+
+    const ul = document.getElementById("lista-gastos");
+    ul.innerHTML = "";
+
+    if (error) {
+      console.error("Error cargando gastos:", error);
+      ul.innerHTML = '<li class="vacio">Error cargando gastos.</li>';
+      return;
     }
 
-    async function registrarHistorial(accion, entidad, detalles) {
-      try {
-        await supabase.from('historial_movimientos').insert([{ tipo_accion: accion, entidad: entidad, detalles: detalles }]);
-      } catch (e) {
-        console.warn("No se pudo registrar en historial:", e);
+    if (!data || data.length === 0) {
+      ul.innerHTML = '<li class="vacio">No hay gastos en esta carpeta.</li>';
+      return;
+    }
+
+    data.forEach((gasto) => {
+      const li = document.createElement("li");
+      const comprobante = gasto.comprobante_url
+        ? ` <a class="comprobante" href="${escapeHtml(gasto.comprobante_url)}" target="_blank" rel="noopener">ver</a>`
+        : "";
+      li.innerHTML =
+        `<span>${escapeHtml(gasto.concepto)}${comprobante}</span>` +
+        `<span class="item-monto">$${Number(gasto.monto).toFixed(2)}</span>`;
+      ul.appendChild(li);
+    });
+  }
+
+  async function guardarGasto() {
+    if (!checarCliente()) return;
+    if (carpetaActualId === null) {
+      alert("Primero elegí o creá una carpeta.");
+      return;
+    }
+
+    const conceptoInput = document.getElementById("input-concepto");
+    const montoInput = document.getElementById("input-monto");
+    const fileInput = document.getElementById("input-comprobante");
+
+    const concepto = conceptoInput.value.trim();
+    const monto = parseFloat(montoInput.value);
+
+    if (!concepto) {
+      alert("Escribí un concepto para el gasto.");
+      return;
+    }
+    if (isNaN(monto)) {
+      alert("Ingresá un monto válido.");
+      return;
+    }
+
+    const boton = document.getElementById("btn-guardar-gasto");
+    boton.disabled = true;
+
+    try {
+      let comprobanteUrl = null;
+
+      const archivo = fileInput.files[0];
+      if (archivo) {
+        const nombreArchivo = `${Date.now()}_${archivo.name}`.replace(/\s+/g, "_");
+        const { error: uploadError } = await supabaseClient.storage
+          .from("adjuntos")
+          .upload(nombreArchivo, archivo);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabaseClient.storage
+          .from("adjuntos")
+          .getPublicUrl(nombreArchivo);
+
+        comprobanteUrl = urlData.publicUrl;
       }
+
+      const { error } = await supabaseClient.from("gastos").insert([
+        {
+          carpeta_id: carpetaActualId,
+          concepto: concepto,
+          monto: monto,
+          comprobante_url: comprobanteUrl,
+        },
+      ]);
+
+      if (error) throw error;
+
+      conceptoInput.value = "";
+      montoInput.value = "";
+      fileInput.value = "";
+      await cargarGastos();
+      registrarHistorial("crear", "gasto", { concepto, monto });
+    } catch (err) {
+      console.error("Error guardando gasto:", err);
+      alert("No se pudo guardar el gasto: " + err.message);
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // 6) TAREAS
+  // ---------------------------------------------------------------
+  async function cargarTareas() {
+    if (!supabaseClient || carpetaActualId === null) return;
+
+    const { data, error } = await supabaseClient
+      .from("tareas")
+      .select("*")
+      .eq("carpeta_id", carpetaActualId)
+      .order("creado_en", { ascending: false });
+
+    const ul = document.getElementById("lista-tareas");
+    ul.innerHTML = "";
+
+    if (error) {
+      console.error("Error cargando tareas:", error);
+      ul.innerHTML = '<li class="vacio">Error cargando tareas.</li>';
+      return;
     }
 
-    async function crearCarpeta() {
-      const btn = document.getElementById('btn-carpeta');
-      const nombre = document.getElementById('carpeta-nombre').value;
-      if (!nombre) return alert('Escribí un nombre de carpeta');
-
-      btn.disabled = true;
-      btn.innerText = 'Guardando...';
-
-      try {
-        const { data, error } = await supabase.from('carpetas').insert([{ nombre }]).select();
-        if (error) {
-          alert('Error al crear carpeta: ' + error.message);
-        } else {
-          alert('¡Carpeta creada con éxito!');
-          await registrarHistorial('CREAR', 'carpetas', { nombre });
-          document.getElementById('carpeta-nombre').value = '';
-          await cargarDatos();
-        }
-      } catch (err) {
-        alert('Fallo inesperado: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Crear Carpeta';
-      }
+    if (!data || data.length === 0) {
+      ul.innerHTML = '<li class="vacio">No hay tareas en esta carpeta.</li>';
+      return;
     }
 
-    async function guardarGasto() {
-      const btn = document.getElementById('btn-gasto');
-      const carpeta_id = document.getElementById('gasto-carpeta').value || null;
-      const concepto = document.getElementById('gasto-concepto').value;
-      const monto = document.getElementById('gasto-monto').value;
-      const archivo = document.getElementById('gasto-foto').files[0];
-      let comprobante_url = null;
+    data.forEach((tarea) => {
+      const li = document.createElement("li");
+      const label = document.createElement("span");
+      label.className = "item-check";
 
-      if (!concepto || !monto) return alert('Completá el concepto y el monto');
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = !!tarea.completada;
+      checkbox.addEventListener("change", () => alternarTarea(tarea.id, checkbox.checked));
 
-      btn.disabled = true;
-      btn.innerText = 'Guardando...';
+      const texto = document.createElement("span");
+      texto.textContent = tarea.titulo;
+      if (tarea.completada) texto.classList.add("completada");
 
-      try {
-        if (archivo) {
-          const fileExt = archivo.name.split('.').pop();
-          const fileName = `${Date.now()}.${fileExt}`;
-          const { data: uploadData, error: upErr } = await supabase.storage.from('adjuntos').upload(fileName, archivo);
-          if (upErr) throw new Error('Error al subir imagen: ' + upErr.message);
-          if (uploadData) {
-            const { data: urlData } = supabase.storage.from('adjuntos').getPublicUrl(fileName);
-            comprobante_url = urlData.publicUrl;
-          }
-        }
+      label.appendChild(checkbox);
+      label.appendChild(texto);
+      li.appendChild(label);
+      ul.appendChild(li);
+    });
+  }
 
-        const { error } = await supabase.from('gastos').insert([{ carpeta_id, concepto, monto: parseFloat(monto), comprobante_url }]);
-        if (error) {
-          alert('Error al guardar gasto: ' + error.message);
-        } else {
-          alert('¡Gasto registrado con éxito!');
-          await registrarHistorial('CREAR', 'gastos', { concepto, monto, con_foto: !!comprobante_url });
-          document.getElementById('gasto-concepto').value = '';
-          document.getElementById('gasto-monto').value = '';
-          document.getElementById('gasto-foto').value = '';
-          await cargarDatos();
-        }
-      } catch (err) {
-        alert('Fallo inesperado: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Guardar Gasto';
-      }
+  async function agregarTarea() {
+    if (!checarCliente()) return;
+    if (carpetaActualId === null) {
+      alert("Primero elegí o creá una carpeta.");
+      return;
     }
 
-    async function guardarTarea() {
-      const btn = document.getElementById('btn-tarea');
-      const carpeta_id = document.getElementById('tarea-carpeta').value || null;
-      const titulo = document.getElementById('tarea-titulo').value;
-      if (!titulo) return alert('Escribí el título de la tarea');
-
-      btn.disabled = true;
-      btn.innerText = 'Guardando...';
-
-      try {
-        const { error } = await supabase.from('tareas').insert([{ carpeta_id, titulo }]);
-        if (error) {
-          alert('Error al guardar tarea: ' + error.message);
-        } else {
-          alert('¡Tarea agregada con éxito!');
-          await registrarHistorial('CREAR', 'tareas', { titulo });
-          document.getElementById('tarea-titulo').value = '';
-          await cargarDatos();
-        }
-      } catch (err) {
-        alert('Fallo inesperado: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'Agregar Tarea';
-      }
+    const input = document.getElementById("input-tarea");
+    const titulo = input.value.trim();
+    if (!titulo) {
+      alert("Escribí un título para la tarea.");
+      return;
     }
 
-    cargarDatos();
-  </script>
+    const boton = document.getElementById("btn-agregar-tarea");
+    boton.disabled = true;
+
+    try {
+      const { error } = await supabaseClient
+        .from("tareas")
+        .insert([{ carpeta_id: carpetaActualId, titulo: titulo }]);
+
+      if (error) throw error;
+
+      input.value = "";
+      await cargarTareas();
+      registrarHistorial("crear", "tarea", { titulo });
+    } catch (err) {
+      console.error("Error agregando tarea:", err);
+      alert("No se pudo agregar la tarea: " + err.message);
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  async function alternarTarea(id, completada) {
+    if (!checarCliente()) return;
+    try {
+      const { error } = await supabaseClient
+        .from("tareas")
+        .update({ completada: completada })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      await cargarTareas();
+      registrarHistorial(completada ? "completar" : "reabrir", "tarea", { id });
+    } catch (err) {
+      console.error("Error actualizando tarea:", err);
+      alert("No se pudo actualizar la tarea: " + err.message);
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // 7) HISTORIAL
+  // ---------------------------------------------------------------
+  async function cargarHistorial() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient
+      .from("historial_movimientos")
+      .select("*")
+      .order("fecha_hora", { ascending: false })
+      .limit(20);
+
+    const div = document.getElementById("historial");
+    if (error) {
+      console.error("Error cargando historial:", error);
+      div.innerHTML = '<div class="vacio">Error cargando historial.</div>';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      div.innerHTML = '<div class="vacio">Sin movimientos todavía.</div>';
+      return;
+    }
+
+    div.innerHTML = data
+      .map((mov) => {
+        const fecha = new Date(mov.fecha_hora).toLocaleString("es-AR");
+        return `<div>${fecha} — ${escapeHtml(mov.tipo_accion)} ${escapeHtml(mov.entidad)}</div>`;
+      })
+      .join("");
+  }
+
+  // ---------------------------------------------------------------
+  // 8) EVENTOS (addEventListener, no onclick inline)
+  // ---------------------------------------------------------------
+  document.getElementById("btn-crear-carpeta").addEventListener("click", crearCarpeta);
+  document.getElementById("btn-guardar-gasto").addEventListener("click", guardarGasto);
+  document.getElementById("btn-agregar-tarea").addEventListener("click", agregarTarea);
+
+  // Enter para confirmar en los inputs de texto principales
+  document.getElementById("input-carpeta").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") crearCarpeta();
+  });
+  document.getElementById("input-tarea").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") agregarTarea();
+  });
+
+  // Captura global de errores no controlados, para que nunca queden "silenciosos"
+  window.addEventListener("error", (e) => {
+    console.error("Error no controlado:", e.error || e.message);
+  });
+  window.addEventListener("unhandledrejection", (e) => {
+    console.error("Promesa rechazada sin manejar:", e.reason);
+  });
+
+  // ---------------------------------------------------------------
+  // 9) CARGA INICIAL
+  // ---------------------------------------------------------------
+  if (supabaseClient) {
+    cargarCarpetas();
+    cargarHistorial();
+  }
+})();
+</script>
+
 </body>
 </html>

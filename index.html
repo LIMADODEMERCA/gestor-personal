@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Gestor Personal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f4f4f9; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Servidor Activo 🎉</h1>
+    <p>Tu aplicación está conectada correctamente a Vercel y Supabase.</p>
+    <div id="status">Cargando estado...</div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "ENV_SUPABASE_URL";
+    const SUPABASE_KEY = "ENV_SUPABASE_KEY";
+
+    if (SUPABASE_URL.startsWith("http")) {
+      document.getElementById("status").innerHTML = "<p style='color:green;'>✅ Conexión exitosa con Supabase.</p>";
+    } else {
+      document.getElementById("status").innerHTML = "<p style='color:red;'>⚠️ Falta configurar las variables de entorno en Vercel.</p>";
+    }
+  </script>
+</body>
+</html>

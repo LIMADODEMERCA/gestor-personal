@@ -301,17 +301,79 @@
     cursor:pointer; padding: 4px 0;
   }
   #icono-toggle-completadas{ transition: transform .2s ease; }
+
+  /* ---------- Pantalla de login ---------- */
+  #pantalla-login{
+    position: fixed; inset:0;
+    background: var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    z-index: 100;
+  }
+  #pantalla-login.oculto{ display:none; }
+  .login-card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .login-card h1{
+    margin: 0 0 4px;
+    font-size: 1.5rem;
+    color: var(--pine-dark);
+    text-align:center;
+  }
+  .login-card p{
+    margin: 0 0 20px;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    text-align:center;
+  }
+  #login-error{
+    color: var(--danger);
+    font-size: 0.84rem;
+    margin: -4px 0 10px;
+    display:none;
+  }
+  .app-shell.oculto{ display:none; }
+  #btn-logout{
+    width: auto;
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 9px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+  }
 </style>
 </head>
 <body>
 
-<div class="app-shell">
+<div id="pantalla-login" class="oculto">
+  <div class="login-card">
+    <h1>Mi Gestor</h1>
+    <p>Iniciá sesión para continuar</p>
+    <div id="login-error"></div>
+    <input type="text" id="login-email" placeholder="Email" autocomplete="username" />
+    <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" style="margin-top:0" />
+    <button id="btn-login" style="margin-top:6px">Iniciar sesión</button>
+  </div>
+</div>
 
+<div class="app-shell oculto" id="app-shell">
   <header class="topbar">
     <h1>Mi Gestor</h1>
     <div class="topbar-derecha">
       <button id="btn-tema" title="Cambiar tema">
         <svg id="icono-tema" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+      </button>
+      <button id="btn-logout" title="Cerrar sesión">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       </button>
       <button id="btn-abrir-carpetas" class="chip-carpeta">
         <span id="carpeta-label">Elegí una carpeta</span>
@@ -462,6 +524,76 @@
   });
 
   iniciarTema();
+
+  // ---------------------------------------------------------------
+  // 0.5) AUTENTICACIÓN
+  // ---------------------------------------------------------------
+  const pantallaLogin = document.getElementById("pantalla-login");
+  const appShell = document.getElementById("app-shell");
+  const loginError = document.getElementById("login-error");
+
+  function mostrarLogin() {
+    pantallaLogin.classList.remove("oculto");
+    appShell.classList.add("oculto");
+  }
+
+  function mostrarApp() {
+    pantallaLogin.classList.add("oculto");
+    appShell.classList.remove("oculto");
+  }
+
+  async function iniciarSesion() {
+    if (!checarCliente()) return;
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    loginError.style.display = "none";
+
+    if (!email || !password) {
+      loginError.textContent = "Completá email y contraseña.";
+      loginError.style.display = "block";
+      return;
+    }
+
+    const boton = document.getElementById("btn-login");
+    boton.disabled = true;
+
+    try {
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      // El cambio de vista lo dispara onAuthStateChange
+    } catch (err) {
+      console.error("Error iniciando sesión:", err);
+      loginError.textContent = "Email o contraseña incorrectos.";
+      loginError.style.display = "block";
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  async function cerrarSesion() {
+    if (!checarCliente()) return;
+    const confirmado = confirm("¿Cerrar sesión?");
+    if (!confirmado) return;
+    await supabaseClient.auth.signOut();
+    // El cambio de vista lo dispara onAuthStateChange
+  }
+
+  document.getElementById("btn-login").addEventListener("click", iniciarSesion);
+  document.getElementById("login-password").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") iniciarSesion();
+  });
+  document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+
+  let appYaCargada = false;
+
+  function cargarDatosIniciales() {
+    if (appYaCargada) return;
+    appYaCargada = true;
+    cargarCarpetas();
+    cargarArchivos();
+    cargarHistorial();
+  }
 
   // ---------------------------------------------------------------
   // 1) CONFIGURACIÓN E INICIALIZACIÓN DEL CLIENTE
@@ -1208,13 +1340,21 @@
   });
 
   // ---------------------------------------------------------------
-  // 12) CARGA INICIAL
+  // 12) CARGA INICIAL — ahora depende de la sesión de autenticación
   // ---------------------------------------------------------------
   actualizarPlaceholders();
   if (supabaseClient) {
-    cargarCarpetas();
-    cargarArchivos();
-    cargarHistorial();
+    supabaseClient.auth.onAuthStateChange((_evento, session) => {
+      if (session) {
+        mostrarApp();
+        cargarDatosIniciales();
+      } else {
+        appYaCargada = false;
+        mostrarLogin();
+      }
+    });
+  } else {
+    mostrarLogin();
   }
 })();
 </script>

@@ -391,6 +391,29 @@
     margin: -4px 0 10px;
     display:none;
   }
+  .campo-password{
+    position: relative;
+    margin-bottom: 9px;
+  }
+  .campo-password input{
+    margin-bottom: 0;
+    padding-right: 44px;
+  }
+  #btn-ver-password{
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink-soft);
+    border-radius: 999px;
+  }
+  #btn-ver-password:active{ background: var(--pine-tint); }
+  #btn-ver-password svg{ width:19px; height:19px; }
   .app-shell.oculto{ display:none; }
   #btn-logout{
     width: auto;
@@ -412,7 +435,12 @@
     <p>Iniciá sesión para continuar</p>
     <div id="login-error"></div>
     <input type="text" id="login-email" placeholder="Email" autocomplete="username" />
-    <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" style="margin-top:0" />
+    <div class="campo-password">
+      <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" />
+      <button type="button" id="btn-ver-password" title="Mostrar contraseña">
+        <svg id="icono-ver-password" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
     <button id="btn-login" style="margin-top:6px">Iniciar sesión</button>
   </div>
 </div>
@@ -688,6 +716,17 @@
     if (e.key === "Enter") iniciarSesion();
   });
   document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+
+  const ICONO_OJO = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+  const ICONO_OJO_TACHADO = '<path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a21.6 21.6 0 015.06-6.06M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a21.6 21.6 0 01-2.68 3.9M14.12 14.12a3 3 0 11-4.24-4.24"/><path d="M1 1l22 22"/>';
+
+  document.getElementById("btn-ver-password").addEventListener("click", () => {
+    const input = document.getElementById("login-password");
+    const icono = document.getElementById("icono-ver-password");
+    const oculto = input.type === "password";
+    input.type = oculto ? "text" : "password";
+    icono.innerHTML = oculto ? ICONO_OJO_TACHADO : ICONO_OJO;
+  });
 
   let appYaCargada = false;
 

@@ -63,7 +63,6 @@
   </div>
 
   <script>
-    // Capturar errores globales y mostrar alerta emergente
     window.addEventListener('error', function(e) {
       alert("⚠️ Error en ejecución: " + e.message);
     });
@@ -72,7 +71,7 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsdW96ZnZ0dHpvd2Rta2d4ZWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjMxODcsImV4cCI6MjEwNDIzOTE4N30.46fb_h8H7TnKgFqorofIBgd29tM6374AFLcSnzsvW6M";
 
     if (!window.supabase) {
-      alert("⚠️ No se cargó la librería de Supabase. Verificá tu conexión o bloqueador de anuncios.");
+      alert("⚠️ No se cargó la librería de Supabase.");
     }
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Mi Gestor</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#33544A">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Gestor">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -473,6 +481,14 @@
         <br><button id="btn-placeholder-gastos" style="width:auto; margin-top:14px;">Elegir carpeta</button>
       </div>
       <div id="contenido-gastos">
+        <div class="card" id="card-resumen-gastos" style="display:none">
+          <h2>Resumen de esta carpeta</h2>
+          <div class="metrica-grande">
+            <span class="metrica-valor" id="gastos-total-carpeta">$0.00</span>
+            <span class="metrica-label">gastado en total</span>
+          </div>
+          <ul class="lista-barras" id="gastos-desglose"></ul>
+        </div>
         <div class="card">
           <h2>Nuevo gasto</h2>
           <input type="text" id="input-concepto" placeholder="Concepto" />
@@ -480,7 +496,7 @@
           <button id="btn-guardar-gasto">Guardar gasto</button>
         </div>
         <div class="card">
-          <h2>Gastos de esta carpeta</h2>
+          <h2>Movimientos</h2>
           <ul class="lista-items" id="lista-gastos"></ul>
         </div>
       </div>
@@ -1026,6 +1042,8 @@
   // ---------------------------------------------------------------
   // 7) GASTOS
   // ---------------------------------------------------------------
+  const COLORES_DESGLOSE = ["#33544A", "#A8793D", "#5C8A7A", "#C79A5C", "#7B9E8F", "#8A6A3F"];
+
   async function cargarGastos() {
     if (!supabaseClient || carpetaActualId === null) return;
 
@@ -1036,19 +1054,47 @@
       .order("creado_en", { ascending: false });
 
     const ul = document.getElementById("lista-gastos");
+    const cardResumen = document.getElementById("card-resumen-gastos");
     ul.innerHTML = "";
 
     if (error) {
       console.error("Error cargando gastos:", error);
       ul.innerHTML = '<li class="vacio">Error cargando gastos.</li>';
+      cardResumen.style.display = "none";
       return;
     }
 
     if (!data || data.length === 0) {
       ul.innerHTML = '<li class="vacio">No hay gastos en esta carpeta.</li>';
+      cardResumen.style.display = "none";
       return;
     }
 
+    // ---- Resumen / desglose por concepto (estilo Mercado Pago) ----
+    const total = data.reduce((acc, g) => acc + Number(g.monto), 0);
+    const porConcepto = {};
+    data.forEach((g) => {
+      const clave = g.concepto.trim().toLowerCase();
+      if (!porConcepto[clave]) porConcepto[clave] = { nombre: g.concepto.trim(), monto: 0 };
+      porConcepto[clave].monto += Number(g.monto);
+    });
+    const filas = Object.values(porConcepto).sort((a, b) => b.monto - a.monto);
+
+    document.getElementById("gastos-total-carpeta").textContent = "$" + total.toFixed(2);
+    const ulDesglose = document.getElementById("gastos-desglose");
+    ulDesglose.innerHTML = "";
+    filas.forEach((fila, i) => {
+      const porcentaje = total > 0 ? (fila.monto / total) * 100 : 0;
+      const color = COLORES_DESGLOSE[i % COLORES_DESGLOSE.length];
+      const li = document.createElement("li");
+      li.innerHTML =
+        `<div class="barra-encabezado"><span class="nombre">${escapeHtml(fila.nombre)}</span><span class="monto">$${fila.monto.toFixed(2)} · ${porcentaje.toFixed(0)}%</span></div>` +
+        `<div class="barra-fondo"><div class="barra-relleno" style="width:${Math.max(3, porcentaje)}%; background:${color}"></div></div>`;
+      ulDesglose.appendChild(li);
+    });
+    cardResumen.style.display = "block";
+
+    // ---- Lista de movimientos ----
     data.forEach((gasto) => {
       const li = document.createElement("li");
 
@@ -1578,6 +1624,16 @@
     });
   } else {
     mostrarLogin();
+  }
+  // ---------------------------------------------------------------
+  // 13) SERVICE WORKER (permite instalar la app en el celular)
+  // ---------------------------------------------------------------
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch((err) => {
+        console.warn("No se pudo registrar el service worker:", err);
+      });
+    });
   }
 })();
 </script>

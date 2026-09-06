@@ -19,7 +19,6 @@
     ul { list-style: none; padding: 0; }
     li { background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #0070f3; }
     .badge { font-size: 0.8rem; background: #e4e6eb; padding: 2px 6px; border-radius: 4px; float: right; }
-    .img-preview { max-width: 100%; border-radius: 6px; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -72,8 +71,9 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function cargarDatos() {
-      // Cargar carpetas
-      const { data: carpetas } = await supabase.from('carpetas').select('*');
+      const { data: carpetas, error: errC } = await supabase.from('carpetas').select('*');
+      if (errC) console.error("Error carpetas:", errC);
+
       const selectGasto = document.getElementById('gasto-carpeta');
       const selectTarea = document.getElementById('tarea-carpeta');
       const listaCarpetas = document.getElementById('lista-carpetas');
@@ -88,16 +88,16 @@
         listaCarpetas.innerHTML += `<li>📁 ${c.nombre}</li>`;
       });
 
-      // Cargar tareas
-      const { data: tareas } = await supabase.from('tareas').select('*').order('creado_en', { ascending: false });
+      const { data: tareas, error: errT } = await supabase.from('tareas').select('*').order('creado_en', { ascending: false });
+      if (errT) console.error("Error tareas:", errT);
       const listaTareas = document.getElementById('lista-tareas');
       listaTareas.innerHTML = '';
       tareas?.forEach(t => {
         listaTareas.innerHTML += `<li>${t.completada ? '✅' : '📌'} ${t.titulo}</li>`;
       });
 
-      // Cargar historial
-      const { data: historial } = await supabase.from('historial_movimientos').select('*').order('fecha_hora', { ascending: false });
+      const { data: historial, error: errH } = await supabase.from('historial_movimientos').select('*').order('fecha_hora', { ascending: false });
+      if (errH) console.error("Error historial:", errH);
       const listaHistorial = document.getElementById('lista-historial');
       listaHistorial.innerHTML = '';
       historial?.forEach(h => {
@@ -117,7 +117,9 @@
       const nombre = document.getElementById('carpeta-nombre').value;
       if (!nombre) return alert('Escribí un nombre');
       const { data, error } = await supabase.from('carpetas').insert([{ nombre }]).select();
-      if (!error) {
+      if (error) {
+        alert('Error al crear carpeta: ' + error.message);
+      } else {
         await registrarHistorial('CREAR', 'carpetas', { nombre });
         document.getElementById('carpeta-nombre').value = '';
         cargarDatos();
@@ -136,7 +138,8 @@
       if (archivo) {
         const fileExt = archivo.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const { data: uploadData } = await supabase.storage.from('adjuntos').upload(fileName, archivo);
+        const { data: uploadData, error: upErr } = await supabase.storage.from('adjuntos').upload(fileName, archivo);
+        if (upErr) return alert('Error al subir imagen: ' + upErr.message);
         if (uploadData) {
           const { data: urlData } = supabase.storage.from('adjuntos').getPublicUrl(fileName);
           comprobante_url = urlData.publicUrl;
@@ -144,7 +147,9 @@
       }
 
       const { error } = await supabase.from('gastos').insert([{ carpeta_id, concepto, monto: parseFloat(monto), comprobante_url }]);
-      if (!error) {
+      if (error) {
+        alert('Error al guardar gasto: ' + error.message);
+      } else {
         await registrarHistorial('CREAR', 'gastos', { concepto, monto, con_foto: !!comprobante_url });
         document.getElementById('gasto-concepto').value = '';
         document.getElementById('gasto-monto').value = '';
@@ -160,7 +165,9 @@
       if (!titulo) return alert('Escribí el título de la tarea');
 
       const { error } = await supabase.from('tareas').insert([{ carpeta_id, titulo }]);
-      if (!error) {
+      if (error) {
+        alert('Error al guardar tarea: ' + error.message);
+      } else {
         await registrarHistorial('CREAR', 'tareas', { titulo });
         document.getElementById('tarea-titulo').value = '';
         cargarDatos();

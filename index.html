@@ -377,14 +377,68 @@
 
     data.forEach((gasto) => {
       const li = document.createElement("li");
-      const comprobante = gasto.comprobante_url
-        ? ` <a class="comprobante" href="${escapeHtml(gasto.comprobante_url)}" target="_blank" rel="noopener">ver</a>`
-        : "";
-      li.innerHTML =
-        `<span>${escapeHtml(gasto.concepto)}${comprobante}</span>` +
-        `<span class="item-monto">$${Number(gasto.monto).toFixed(2)}</span>`;
+
+      const izquierda = document.createElement("span");
+      izquierda.innerHTML = escapeHtml(gasto.concepto);
+      if (gasto.comprobante_url) {
+        const link = document.createElement("a");
+        link.className = "comprobante";
+        link.href = gasto.comprobante_url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = " ver";
+        izquierda.appendChild(link);
+      }
+
+      const derecha = document.createElement("span");
+      derecha.style.display = "flex";
+      derecha.style.alignItems = "center";
+      derecha.style.gap = "8px";
+
+      const monto = document.createElement("span");
+      monto.className = "item-monto";
+      monto.textContent = "$" + Number(gasto.monto).toFixed(2);
+
+      const btnBorrar = document.createElement("button");
+      btnBorrar.className = "secondary";
+      btnBorrar.textContent = "Eliminar";
+      btnBorrar.style.padding = "4px 8px";
+      btnBorrar.style.fontSize = "0.78rem";
+      btnBorrar.addEventListener("click", () => eliminarGasto(gasto));
+
+      derecha.appendChild(monto);
+      derecha.appendChild(btnBorrar);
+
+      li.appendChild(izquierda);
+      li.appendChild(derecha);
       ul.appendChild(li);
     });
+  }
+
+  async function eliminarGasto(gasto) {
+    if (!checarCliente()) return;
+
+    const confirmado = confirm(`¿Eliminar el gasto "${gasto.concepto}" ($${Number(gasto.monto).toFixed(2)})?`);
+    if (!confirmado) return;
+
+    try {
+      const { error } = await supabaseClient
+        .from("gastos")
+        .delete()
+        .eq("id", gasto.id);
+
+      if (error) throw error;
+
+      await cargarGastos();
+      registrarHistorial("eliminar", "gasto", {
+        id: gasto.id,
+        concepto: gasto.concepto,
+        monto: gasto.monto,
+      });
+    } catch (err) {
+      console.error("Error eliminando gasto:", err);
+      alert("No se pudo eliminar el gasto: " + err.message);
+    }
   }
 
   async function guardarGasto() {
@@ -583,9 +637,19 @@
     div.innerHTML = data
       .map((mov) => {
         const fecha = new Date(mov.fecha_hora).toLocaleString("es-AR");
-        return `<div>${fecha} — ${escapeHtml(mov.tipo_accion)} ${escapeHtml(mov.entidad)}</div>`;
+        return `<div>${fecha} — ${escapeHtml(mov.tipo_accion)} ${escapeHtml(mov.entidad)}${describirDetalle(mov.detalles)}</div>`;
       })
       .join("");
+  }
+
+  function describirDetalle(detalles) {
+    if (!detalles || typeof detalles !== "object") return "";
+    if (detalles.concepto) {
+      return ` — "${escapeHtml(detalles.concepto)}"` + (detalles.monto != null ? ` ($${Number(detalles.monto).toFixed(2)})` : "");
+    }
+    if (detalles.nombre) return ` — "${escapeHtml(detalles.nombre)}"`;
+    if (detalles.titulo) return ` — "${escapeHtml(detalles.titulo)}"`;
+    return "";
   }
 
   // ---------------------------------------------------------------

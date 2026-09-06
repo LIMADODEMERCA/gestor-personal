@@ -300,6 +300,7 @@
     flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     cursor:pointer; padding: 4px 0;
   }
+  #icono-toggle-completadas{ transition: transform .2s ease; }
 </style>
 </head>
 <body>
@@ -356,8 +357,15 @@
           <button id="btn-agregar-tarea">Agregar tarea</button>
         </div>
         <div class="card">
-          <h2>Tareas de esta carpeta</h2>
+          <h2>Tareas pendientes</h2>
           <ul class="lista-items" id="lista-tareas"></ul>
+        </div>
+        <div class="card" id="card-completadas" style="display:none">
+          <button id="btn-toggle-completadas" class="secondary" style="width:100%; justify-content:space-between; display:flex; align-items:center;">
+            <span>Completadas (<span id="contador-completadas">0</span>)</span>
+            <svg id="icono-toggle-completadas" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 8l8 8 8-8"/></svg>
+          </button>
+          <ul class="lista-items" id="lista-tareas-completadas" style="display:none; margin-top:8px;"></ul>
         </div>
       </div>
     </section>
@@ -873,47 +881,95 @@
       .eq("carpeta_id", carpetaActualId)
       .order("creado_en", { ascending: false });
 
-    const ul = document.getElementById("lista-tareas");
-    ul.innerHTML = "";
+    const ulPendientes = document.getElementById("lista-tareas");
+    const ulCompletadas = document.getElementById("lista-tareas-completadas");
+    const cardCompletadas = document.getElementById("card-completadas");
+    const contador = document.getElementById("contador-completadas");
+    ulPendientes.innerHTML = "";
+    ulCompletadas.innerHTML = "";
 
     if (error) {
       console.error("Error cargando tareas:", error);
-      ul.innerHTML = '<li class="vacio">Error cargando tareas.</li>';
+      ulPendientes.innerHTML = '<li class="vacio">Error cargando tareas.</li>';
+      cardCompletadas.style.display = "none";
       return;
     }
 
-    if (!data || data.length === 0) {
-      ul.innerHTML = '<li class="vacio">No hay tareas en esta carpeta.</li>';
-      return;
+    const todas = data || [];
+    const pendientes = todas.filter((t) => !t.completada);
+    const completadas = todas.filter((t) => t.completada);
+
+    if (pendientes.length === 0) {
+      ulPendientes.innerHTML = '<li class="vacio">No hay tareas pendientes.</li>';
+    } else {
+      pendientes.forEach((tarea) => {
+        const li = document.createElement("li");
+        const label = document.createElement("span");
+        label.className = "item-check";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = false;
+        checkbox.addEventListener("change", () => alternarTarea(tarea.id, tarea.titulo, checkbox.checked));
+
+        const texto = document.createElement("span");
+        texto.textContent = tarea.titulo;
+
+        label.appendChild(checkbox);
+        label.appendChild(texto);
+
+        const btnBorrar = document.createElement("button");
+        btnBorrar.className = "icon-btn danger-text";
+        btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
+        btnBorrar.addEventListener("click", () => eliminarTarea(tarea));
+
+        li.appendChild(label);
+        li.appendChild(btnBorrar);
+        ulPendientes.appendChild(li);
+      });
     }
 
-    data.forEach((tarea) => {
-      const li = document.createElement("li");
-      const label = document.createElement("span");
-      label.className = "item-check";
+    if (completadas.length === 0) {
+      cardCompletadas.style.display = "none";
+    } else {
+      cardCompletadas.style.display = "block";
+      contador.textContent = completadas.length;
+      completadas.forEach((tarea) => {
+        const li = document.createElement("li");
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = !!tarea.completada;
-      checkbox.addEventListener("change", () => alternarTarea(tarea.id, tarea.titulo, checkbox.checked));
+        const texto = document.createElement("span");
+        texto.textContent = tarea.titulo;
+        texto.classList.add("completada");
 
-      const texto = document.createElement("span");
-      texto.textContent = tarea.titulo;
-      if (tarea.completada) texto.classList.add("completada");
+        const derecha = document.createElement("span");
+        derecha.className = "fila-derecha";
 
-      label.appendChild(checkbox);
-      label.appendChild(texto);
+        const btnReabrir = document.createElement("button");
+        btnReabrir.className = "secondary";
+        btnReabrir.textContent = "Reabrir";
+        btnReabrir.addEventListener("click", () => alternarTarea(tarea.id, tarea.titulo, false));
 
-      const btnBorrar = document.createElement("button");
-      btnBorrar.className = "icon-btn danger-text";
-      btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
-      btnBorrar.addEventListener("click", () => eliminarTarea(tarea));
+        const btnBorrar = document.createElement("button");
+        btnBorrar.className = "icon-btn danger-text";
+        btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
+        btnBorrar.addEventListener("click", () => eliminarTarea(tarea));
 
-      li.appendChild(label);
-      li.appendChild(btnBorrar);
-      ul.appendChild(li);
-    });
+        derecha.appendChild(btnReabrir);
+        derecha.appendChild(btnBorrar);
+        li.appendChild(texto);
+        li.appendChild(derecha);
+        ulCompletadas.appendChild(li);
+      });
+    }
   }
+
+  document.getElementById("btn-toggle-completadas").addEventListener("click", () => {
+    const ul = document.getElementById("lista-tareas-completadas");
+    const icono = document.getElementById("icono-toggle-completadas");
+    const abierta = ul.style.display !== "none";
+    ul.style.display = abierta ? "none" : "block";
+    icono.style.transform = abierta ? "rotate(0deg)" : "rotate(180deg)";
+  });
 
   async function eliminarTarea(tarea) {
     if (!checarCliente()) return;

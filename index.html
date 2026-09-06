@@ -6,7 +6,7 @@
 <title>Mi Gestor</title>
 
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#33544A">
+<meta name="theme-color" content="#0C0D0D">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,14 +22,14 @@
 
 <style>
   :root{
-    --paper: #F0EEE4;
+    --paper: #F1EFEA;
     --card: #FFFFFF;
-    --ink: #202A22;
-    --ink-soft: #66766A;
-    --line: #E1DDCE;
-    --pine: #33544A;
-    --pine-dark: #24403A;
-    --pine-tint: #E7EEEA;
+    --ink: #17181A;
+    --ink-soft: #6E7073;
+    --line: #E2E0D8;
+    --acento: #17181A;
+    --acento-fuerte: #000000;
+    --acento-tinte: #ECEBE7;
     --gold: #A8793D;
     --gold-tint: #F3E7D6;
     --danger: #AE4E3B;
@@ -40,16 +40,16 @@
     --radius-sm: 9px;
   }
   :root[data-theme="dark"]{
-    --paper: #101614;
-    --card: #19211E;
-    --ink: #E8ECE7;
-    --ink-soft: #8AA098;
-    --line: #2A342F;
-    --pine: #7CB6A0;
-    --pine-dark: #A9D6C1;
-    --pine-tint: #1E2C27;
-    --gold: #D9A85F;
-    --gold-tint: #2C2517;
+    --paper: #0C0D0D;
+    --card: #18191B;
+    --ink: #ECEDEE;
+    --ink-soft: #9A9CA0;
+    --line: #2B2D2F;
+    --acento: #D9AE5C;
+    --acento-fuerte: #EFC981;
+    --acento-tinte: #251F14;
+    --gold: #D9AE5C;
+    --gold-tint: #251F14;
     --danger: #E2896C;
     --danger-tint: #33231C;
     --ok: #7CC9A0;
@@ -91,7 +91,7 @@
     font-size: 1.4rem;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: var(--pine-dark);
+    color: var(--acento-fuerte);
   }
   .chip-carpeta{
     display:flex;
@@ -150,7 +150,7 @@
     margin: 0 0 12px;
     font-size: 1.02rem;
     font-weight: 600;
-    color: var(--pine-dark);
+    color: var(--acento-fuerte);
   }
   .placeholder-carpeta{
     text-align:center;
@@ -172,12 +172,12 @@
     margin-bottom: 9px;
   }
   input[type=file]{ padding: 9px 10px; }
-  input:focus{ outline: 2px solid var(--pine); outline-offset: 1px; }
+  input:focus{ outline: 2px solid var(--acento); outline-offset: 1px; }
   .fila-doble{ display:flex; gap: 8px; }
   .fila-doble input{ flex:1; }
 
   button{
-    background: var(--pine);
+    background: var(--acento);
     color: #fff;
     border: none;
     border-radius: var(--radius-sm);
@@ -203,7 +203,7 @@
     border-radius: 999px;
     display:flex; align-items:center; justify-content:center;
   }
-  button.icon-btn:active{ background: var(--pine-tint); }
+  button.icon-btn:active{ background: var(--acento-tinte); }
   button.danger-text{ color: var(--danger); border-color: var(--danger-tint); }
 
   /* ---------- List items ---------- */
@@ -220,7 +220,7 @@
   .lista-items li:last-child{ border-bottom: none; }
   .item-monto{ color: var(--gold); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .item-check{ display:flex; align-items:center; gap:10px; }
-  .item-check input[type=checkbox]{ width: 20px; height: 20px; accent-color: var(--pine); flex-shrink:0; }
+  .item-check input[type=checkbox]{ width: 20px; height: 20px; accent-color: var(--acento); flex-shrink:0; }
   .completada{ text-decoration: line-through; color: var(--ink-soft); }
   .vacio{ color: var(--ink-soft); font-size: 0.88rem; padding: 10px 2px; justify-content: center !important; }
   a.archivo-link{ color: var(--ink); font-weight: 500; text-decoration: none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -256,7 +256,7 @@
     font-weight: 600;
     border-radius: var(--radius-sm);
   }
-  .nav-btn.active{ color: var(--pine); background: var(--pine-tint); }
+  .nav-btn.active{ color: var(--acento); background: var(--acento-tinte); }
   .nav-btn svg{ width:22px; height:22px; }
 
   /* ---------- Bottom sheet (Carpetas) ---------- */
@@ -291,7 +291,7 @@
     border-radius: 3px;
     margin: 4px auto 14px;
   }
-  .sheet h2{ margin: 0 0 12px; font-size: 1.1rem; color: var(--pine-dark); }
+  .sheet h2{ margin: 0 0 12px; font-size: 1.1rem; color: var(--acento-fuerte); }
   .sheet .add-row{ display:flex; gap:8px; margin-bottom: 14px; }
   .sheet .add-row input{ margin-bottom:0; }
   .sheet .add-row button{ width: auto; padding: 0 16px; }
@@ -303,7 +303,7 @@
     border-bottom: 1px solid var(--line);
   }
   #lista-carpetas li:last-child{ border-bottom:none; }
-  #lista-carpetas li.activa .nombre-carpeta{ color: var(--pine); font-weight:600; }
+  #lista-carpetas li.activa .nombre-carpeta{ color: var(--acento); font-weight:600; }
   .nombre-carpeta{
     flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
     cursor:pointer; padding: 4px 0;
@@ -322,7 +322,7 @@
     font-family: "Fraunces", Georgia, serif;
     font-size: 2.2rem;
     font-weight: 600;
-    color: var(--pine-dark);
+    color: var(--acento-fuerte);
     font-variant-numeric: tabular-nums;
   }
   .metrica-label{
@@ -360,7 +360,61 @@
     height: 8px;
     overflow: hidden;
   }
-  .barra-relleno{ background: var(--pine); height: 100%; border-radius: 6px; }
+  .barra-relleno{ background: var(--acento); height: 100%; border-radius: 6px; }
+
+  /* ---------- Gráfico de torta (CSS conic-gradient, sin librerías) ---------- */
+  .torta-contenedor{
+    display:flex; justify-content:center;
+    padding: 10px 0 18px;
+  }
+  .torta{
+    width: 170px; height: 170px;
+    border-radius: 50%;
+    position: relative;
+  }
+  .torta::after{
+    content:"";
+    position:absolute;
+    inset: 22%;
+    background: var(--card);
+    border-radius: 50%;
+  }
+  .lista-leyenda{ list-style:none; margin:0; padding:0; }
+  .lista-leyenda li{
+    display:flex; align-items:center; gap:10px;
+    padding: 8px 0;
+    font-size: 0.88rem;
+  }
+  .lista-leyenda li:not(:last-child){ border-bottom: 1px solid var(--line); }
+  .punto-leyenda{
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    flex-shrink:0;
+  }
+  .leyenda-nombre{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .leyenda-monto{ color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space:nowrap; }
+
+  /* ---------- Selector segmentado ---------- */
+  .segmentado{
+    display:flex;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    margin-bottom: 14px;
+  }
+  .segmento{
+    flex:1;
+    background: transparent;
+    color: var(--ink-soft);
+    border:none;
+    border-radius: 999px;
+    padding: 9px;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .segmento.activo{ background: var(--acento); color: var(--paper); }
+  :root[data-theme="dark"] .segmento.activo{ color: #17181A; }
 
   /* ---------- Pantalla de login ---------- */
   #pantalla-login{
@@ -384,7 +438,7 @@
   .login-card h1{
     margin: 0 0 4px;
     font-size: 1.5rem;
-    color: var(--pine-dark);
+    color: var(--acento-fuerte);
     text-align:center;
   }
   .login-card p{
@@ -420,7 +474,7 @@
     color: var(--ink-soft);
     border-radius: 999px;
   }
-  #btn-ver-password:active{ background: var(--pine-tint); }
+  #btn-ver-password:active{ background: var(--acento-tinte); }
   #btn-ver-password svg{ width:19px; height:19px; }
   .app-shell.oculto{ display:none; }
   #btn-logout{
@@ -474,31 +528,71 @@
 
   <main class="content">
 
-    <!-- GASTOS -->
+    <!-- FINANZAS (gastos + ingresos) -->
     <section class="view active" data-view="gastos">
       <div id="placeholder-gastos" class="card placeholder-carpeta" style="display:none">
-        Elegí o creá una carpeta para empezar a cargar gastos.
+        Elegí o creá una carpeta para empezar a cargar movimientos.
         <br><button id="btn-placeholder-gastos" style="width:auto; margin-top:14px;">Elegir carpeta</button>
       </div>
       <div id="contenido-gastos">
-        <div class="card" id="card-resumen-gastos" style="display:none">
-          <h2>Resumen de esta carpeta</h2>
-          <div class="metrica-grande">
-            <span class="metrica-valor" id="gastos-total-carpeta">$0.00</span>
-            <span class="metrica-label">gastado en total</span>
+
+        <div class="card" id="card-balance">
+          <h2>Balance de esta carpeta</h2>
+          <div class="metricas-fila" style="margin-bottom:14px">
+            <div class="metrica-chica">
+              <span class="metrica-valor-chico" id="balance-ingresos" style="color:var(--ok)">$0.00</span>
+              <span class="metrica-label">ingresos</span>
+            </div>
+            <div class="metrica-chica">
+              <span class="metrica-valor-chico" id="balance-gastos" style="color:var(--danger)">$0.00</span>
+              <span class="metrica-label">gastos</span>
+            </div>
           </div>
-          <ul class="lista-barras" id="gastos-desglose"></ul>
+          <div class="metrica-grande" style="border:none; margin-bottom:0; padding-bottom:0;">
+            <span class="metrica-valor" id="balance-disponible">$0.00</span>
+            <span class="metrica-label">disponible</span>
+          </div>
         </div>
-        <div class="card">
-          <h2>Nuevo gasto</h2>
-          <input type="text" id="input-concepto" placeholder="Concepto" />
-          <input type="number" id="input-monto" placeholder="Monto" step="0.01" />
-          <button id="btn-guardar-gasto">Guardar gasto</button>
+
+        <div class="card" id="card-resumen-gastos" style="display:none">
+          <h2>En qué se fue la plata</h2>
+          <div class="torta-contenedor">
+            <div class="torta" id="torta-gastos"></div>
+          </div>
+          <ul class="lista-leyenda" id="gastos-desglose"></ul>
         </div>
-        <div class="card">
-          <h2>Movimientos</h2>
-          <ul class="lista-items" id="lista-gastos"></ul>
+
+        <div class="segmentado" id="segmentado-finanzas">
+          <button class="segmento activo" data-tipo="gastos">Gastos</button>
+          <button class="segmento" data-tipo="ingresos">Ingresos</button>
         </div>
+
+        <div id="panel-gastos">
+          <div class="card">
+            <h2>Nuevo gasto</h2>
+            <input type="text" id="input-concepto" placeholder="Concepto" />
+            <input type="number" id="input-monto" placeholder="Monto" step="0.01" />
+            <button id="btn-guardar-gasto">Guardar gasto</button>
+          </div>
+          <div class="card">
+            <h2>Movimientos</h2>
+            <ul class="lista-items" id="lista-gastos"></ul>
+          </div>
+        </div>
+
+        <div id="panel-ingresos" style="display:none">
+          <div class="card">
+            <h2>Nuevo ingreso</h2>
+            <input type="text" id="input-concepto-ingreso" placeholder="Concepto (sueldo, venta, etc.)" />
+            <input type="number" id="input-monto-ingreso" placeholder="Monto" step="0.01" />
+            <button id="btn-guardar-ingreso">Guardar ingreso</button>
+          </div>
+          <div class="card">
+            <h2>Movimientos</h2>
+            <ul class="lista-items" id="lista-ingresos"></ul>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -545,9 +639,19 @@
     <section class="view" data-view="resumen">
       <div class="card">
         <h2>General</h2>
+        <div class="metricas-fila" style="margin-bottom:14px">
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-ingresos-general" style="color:var(--ok)">$0.00</span>
+            <span class="metrica-label">ingresos</span>
+          </div>
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-gastos-general" style="color:var(--danger)">$0.00</span>
+            <span class="metrica-label">gastos</span>
+          </div>
+        </div>
         <div class="metrica-grande">
-          <span class="metrica-valor" id="resumen-total-general">$0.00</span>
-          <span class="metrica-label">gastado en total</span>
+          <span class="metrica-valor" id="resumen-disponible-general">$0.00</span>
+          <span class="metrica-label">disponible en total</span>
         </div>
         <div class="metricas-fila">
           <div class="metrica-chica">
@@ -602,7 +706,7 @@
   <nav class="bottom-nav">
     <button class="nav-btn active" data-view="gastos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="8" cy="14.5" r="1.3" fill="currentColor" stroke="none"/></svg>
-      Gastos
+      Finanzas
     </button>
     <button class="nav-btn" data-view="tareas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
@@ -656,8 +760,7 @@
       aplicarTema(guardado);
       return;
     }
-    const prefiereOscuro = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    aplicarTema(prefiereOscuro ? "dark" : "light");
+    aplicarTema("dark");
   }
 
   document.getElementById("btn-tema").addEventListener("click", () => {
@@ -935,6 +1038,7 @@
     document.getElementById("carpeta-label").textContent = nombre;
     actualizarPlaceholders();
     cargarGastos();
+    cargarIngresos();
     cargarTareas();
     cerrarSheet();
   }
@@ -1042,7 +1146,30 @@
   // ---------------------------------------------------------------
   // 7) GASTOS
   // ---------------------------------------------------------------
-  const COLORES_DESGLOSE = ["#33544A", "#A8793D", "#5C8A7A", "#C79A5C", "#7B9E8F", "#8A6A3F"];
+  const COLORES_DESGLOSE = ["#D9AE5C", "#5C8A7A", "#A85C6B", "#6B8FB8", "#8A6A3F", "#7B9E8F", "#B85C8F", "#5C7AB8"];
+
+  function colorTema(nombreVar) {
+    return getComputedStyle(document.documentElement).getPropertyValue(nombreVar).trim();
+  }
+
+  async function cargarBalance() {
+    if (!supabaseClient || carpetaActualId === null) return;
+
+    const [gRes, iRes] = await Promise.all([
+      supabaseClient.from("gastos").select("monto").eq("carpeta_id", carpetaActualId),
+      supabaseClient.from("ingresos").select("monto").eq("carpeta_id", carpetaActualId),
+    ]);
+
+    const totalGastos = (gRes.data || []).reduce((a, g) => a + Number(g.monto), 0);
+    const totalIngresos = (iRes.data || []).reduce((a, g) => a + Number(g.monto), 0);
+    const disponible = totalIngresos - totalGastos;
+
+    document.getElementById("balance-ingresos").textContent = "$" + totalIngresos.toFixed(2);
+    document.getElementById("balance-gastos").textContent = "$" + totalGastos.toFixed(2);
+    const elDisponible = document.getElementById("balance-disponible");
+    elDisponible.textContent = (disponible < 0 ? "-$" : "$") + Math.abs(disponible).toFixed(2);
+    elDisponible.style.color = disponible < 0 ? "var(--danger)" : "var(--ok)";
+  }
 
   async function cargarGastos() {
     if (!supabaseClient || carpetaActualId === null) return;
@@ -1061,16 +1188,18 @@
       console.error("Error cargando gastos:", error);
       ul.innerHTML = '<li class="vacio">Error cargando gastos.</li>';
       cardResumen.style.display = "none";
+      cargarBalance();
       return;
     }
 
     if (!data || data.length === 0) {
       ul.innerHTML = '<li class="vacio">No hay gastos en esta carpeta.</li>';
       cardResumen.style.display = "none";
+      cargarBalance();
       return;
     }
 
-    // ---- Resumen / desglose por concepto (estilo Mercado Pago) ----
+    // ---- Gráfico de torta por concepto ----
     const total = data.reduce((acc, g) => acc + Number(g.monto), 0);
     const porConcepto = {};
     data.forEach((g) => {
@@ -1080,16 +1209,27 @@
     });
     const filas = Object.values(porConcepto).sort((a, b) => b.monto - a.monto);
 
-    document.getElementById("gastos-total-carpeta").textContent = "$" + total.toFixed(2);
-    const ulDesglose = document.getElementById("gastos-desglose");
-    ulDesglose.innerHTML = "";
+    const segmentos = [];
+    let acumulado = 0;
     filas.forEach((fila, i) => {
       const porcentaje = total > 0 ? (fila.monto / total) * 100 : 0;
       const color = COLORES_DESGLOSE[i % COLORES_DESGLOSE.length];
+      const desde = acumulado;
+      acumulado += porcentaje;
+      segmentos.push(`${color} ${desde}% ${acumulado}%`);
+      fila.color = color;
+      fila.porcentaje = porcentaje;
+    });
+    document.getElementById("torta-gastos").style.background = `conic-gradient(${segmentos.join(", ")})`;
+
+    const ulDesglose = document.getElementById("gastos-desglose");
+    ulDesglose.innerHTML = "";
+    filas.forEach((fila) => {
       const li = document.createElement("li");
       li.innerHTML =
-        `<div class="barra-encabezado"><span class="nombre">${escapeHtml(fila.nombre)}</span><span class="monto">$${fila.monto.toFixed(2)} · ${porcentaje.toFixed(0)}%</span></div>` +
-        `<div class="barra-fondo"><div class="barra-relleno" style="width:${Math.max(3, porcentaje)}%; background:${color}"></div></div>`;
+        `<span class="punto-leyenda" style="background:${fila.color}"></span>` +
+        `<span class="leyenda-nombre">${escapeHtml(fila.nombre)}</span>` +
+        `<span class="leyenda-monto">$${fila.monto.toFixed(2)} · ${fila.porcentaje.toFixed(0)}%</span>`;
       ulDesglose.appendChild(li);
     });
     cardResumen.style.display = "block";
@@ -1129,6 +1269,8 @@
       li.appendChild(derecha);
       ul.appendChild(li);
     });
+
+    cargarBalance();
   }
 
   async function guardarGasto() {
@@ -1192,6 +1334,137 @@
       alert("No se pudo eliminar el gasto: " + err.message);
     }
   }
+
+  // ---------------------------------------------------------------
+  // 7.5) INGRESOS
+  // ---------------------------------------------------------------
+  async function cargarIngresos() {
+    if (!supabaseClient || carpetaActualId === null) return;
+
+    const { data, error } = await supabaseClient
+      .from("ingresos")
+      .select("*")
+      .eq("carpeta_id", carpetaActualId)
+      .order("creado_en", { ascending: false });
+
+    const ul = document.getElementById("lista-ingresos");
+    ul.innerHTML = "";
+
+    if (error) {
+      console.error("Error cargando ingresos:", error);
+      ul.innerHTML = '<li class="vacio">Error cargando ingresos.</li>';
+      cargarBalance();
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      ul.innerHTML = '<li class="vacio">No hay ingresos en esta carpeta.</li>';
+      cargarBalance();
+      return;
+    }
+
+    data.forEach((ingreso) => {
+      const li = document.createElement("li");
+
+      const izquierda = document.createElement("span");
+      izquierda.textContent = ingreso.concepto;
+
+      const derecha = document.createElement("span");
+      derecha.className = "fila-derecha";
+
+      const monto = document.createElement("span");
+      monto.className = "item-monto";
+      monto.style.color = "var(--ok)";
+      monto.textContent = "$" + Number(ingreso.monto).toFixed(2);
+
+      const btnBorrar = document.createElement("button");
+      btnBorrar.className = "icon-btn danger-text";
+      btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
+      btnBorrar.addEventListener("click", () => eliminarIngreso(ingreso));
+
+      derecha.appendChild(monto);
+      derecha.appendChild(btnBorrar);
+
+      li.appendChild(izquierda);
+      li.appendChild(derecha);
+      ul.appendChild(li);
+    });
+
+    cargarBalance();
+  }
+
+  async function guardarIngreso() {
+    if (!checarCliente()) return;
+    if (carpetaActualId === null) {
+      alert("Primero elegí o creá una carpeta.");
+      return;
+    }
+
+    const conceptoInput = document.getElementById("input-concepto-ingreso");
+    const montoInput = document.getElementById("input-monto-ingreso");
+
+    const concepto = conceptoInput.value.trim();
+    const monto = parseFloat(montoInput.value);
+
+    if (!concepto) {
+      alert("Escribí un concepto para el ingreso.");
+      return;
+    }
+    if (isNaN(monto)) {
+      alert("Ingresá un monto válido.");
+      return;
+    }
+
+    const boton = document.getElementById("btn-guardar-ingreso");
+    boton.disabled = true;
+
+    try {
+      const { error } = await supabaseClient.from("ingresos").insert([
+        { carpeta_id: carpetaActualId, concepto: concepto, monto: monto },
+      ]);
+
+      if (error) throw error;
+
+      conceptoInput.value = "";
+      montoInput.value = "";
+      await cargarIngresos();
+      registrarHistorial("crear", "ingreso", { concepto, monto });
+    } catch (err) {
+      console.error("Error guardando ingreso:", err);
+      alert("No se pudo guardar el ingreso: " + err.message);
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  async function eliminarIngreso(ingreso) {
+    if (!checarCliente()) return;
+
+    const confirmado = confirm(`¿Eliminar el ingreso "${ingreso.concepto}" ($${Number(ingreso.monto).toFixed(2)})?`);
+    if (!confirmado) return;
+
+    try {
+      const { error } = await supabaseClient.from("ingresos").delete().eq("id", ingreso.id);
+      if (error) throw error;
+
+      await cargarIngresos();
+      registrarHistorial("eliminar", "ingreso", { id: ingreso.id, concepto: ingreso.concepto, monto: ingreso.monto });
+    } catch (err) {
+      console.error("Error eliminando ingreso:", err);
+      alert("No se pudo eliminar el ingreso: " + err.message);
+    }
+  }
+
+  // Selector segmentado Gastos / Ingresos
+  document.querySelectorAll("#segmentado-finanzas .segmento").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#segmentado-finanzas .segmento").forEach((b) => b.classList.remove("activo"));
+      btn.classList.add("activo");
+      const esGastos = btn.dataset.tipo === "gastos";
+      document.getElementById("panel-gastos").style.display = esGastos ? "block" : "none";
+      document.getElementById("panel-ingresos").style.display = esGastos ? "none" : "block";
+    });
+  });
 
   // ---------------------------------------------------------------
   // 8) TAREAS
@@ -1515,33 +1788,46 @@
   async function cargarResumen() {
     if (!supabaseClient) return;
 
-    const [carpetasRes, gastosRes, tareasRes, archivosRes] = await Promise.all([
+    const [carpetasRes, gastosRes, ingresosRes, tareasRes, archivosRes] = await Promise.all([
       supabaseClient.from("carpetas").select("id, nombre"),
       supabaseClient.from("gastos").select("carpeta_id, monto"),
+      supabaseClient.from("ingresos").select("carpeta_id, monto"),
       supabaseClient.from("tareas").select("carpeta_id, completada"),
       supabaseClient.storage.from("adjuntos").list(""),
     ]);
 
-    if (carpetasRes.error || gastosRes.error || tareasRes.error) {
-      console.error("Error cargando resumen:", carpetasRes.error || gastosRes.error || tareasRes.error);
+    if (carpetasRes.error || gastosRes.error || ingresosRes.error || tareasRes.error) {
+      console.error("Error cargando resumen:", carpetasRes.error || gastosRes.error || ingresosRes.error || tareasRes.error);
       return;
     }
 
     const carpetas = carpetasRes.data || [];
     const gastos = gastosRes.data || [];
+    const ingresos = ingresosRes.data || [];
     const tareas = tareasRes.data || [];
     const archivos = (archivosRes.data || []).filter((f) => f.name && !f.name.endsWith("/"));
 
     // Total general y por carpeta
     const totalPorCarpeta = {};
-    let totalGeneral = 0;
+    let totalGastosGeneral = 0;
     gastos.forEach((g) => {
       const monto = Number(g.monto) || 0;
-      totalGeneral += monto;
+      totalGastosGeneral += monto;
       totalPorCarpeta[g.carpeta_id] = (totalPorCarpeta[g.carpeta_id] || 0) + monto;
     });
 
-    document.getElementById("resumen-total-general").textContent = "$" + totalGeneral.toFixed(2);
+    let totalIngresosGeneral = 0;
+    ingresos.forEach((i) => {
+      totalIngresosGeneral += Number(i.monto) || 0;
+    });
+
+    const disponibleGeneral = totalIngresosGeneral - totalGastosGeneral;
+
+    document.getElementById("resumen-ingresos-general").textContent = "$" + totalIngresosGeneral.toFixed(2);
+    document.getElementById("resumen-gastos-general").textContent = "$" + totalGastosGeneral.toFixed(2);
+    const elDisponibleGeneral = document.getElementById("resumen-disponible-general");
+    elDisponibleGeneral.textContent = (disponibleGeneral < 0 ? "-$" : "$") + Math.abs(disponibleGeneral).toFixed(2);
+    elDisponibleGeneral.style.color = disponibleGeneral < 0 ? "var(--danger)" : "var(--ok)";
 
     // Tareas generales
     const pendientesTotal = tareas.filter((t) => !t.completada).length;
@@ -1591,6 +1877,7 @@
   // ---------------------------------------------------------------
   document.getElementById("btn-crear-carpeta").addEventListener("click", crearCarpeta);
   document.getElementById("btn-guardar-gasto").addEventListener("click", guardarGasto);
+  document.getElementById("btn-guardar-ingreso").addEventListener("click", guardarIngreso);
   document.getElementById("btn-agregar-tarea").addEventListener("click", agregarTarea);
   document.getElementById("btn-subir-archivo").addEventListener("click", subirArchivo);
 

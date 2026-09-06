@@ -6,27 +6,168 @@
   <title>Mi Gestor Personal</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f4f4f9; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    h1 { color: #333; }
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #f0f2f5; margin: 0; padding: 20px; color: #1c1e21; }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { background: #0070f3; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    h2 { margin-top: 0; font-size: 1.2rem; color: #0070f3; }
+    input, select, button, textarea { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; }
+    button { background: #0070f3; color: white; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #0051a2; }
+    ul { list-style: none; padding: 0; }
+    li { background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #0070f3; }
+    .badge { font-size: 0.8rem; background: #e4e6eb; padding: 2px 6px; border-radius: 4px; float: right; }
+    .img-preview { max-width: 100%; border-radius: 6px; margin-top: 8px; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Servidor Activo 🎉</h1>
-    <p>Tu aplicación está conectada correctamente a Vercel y Supabase.</p>
-    <div id="status">Cargando estado...</div>
+  <div class="container">
+    <header>
+      <h1>🗂️ Mi Gestor Personal</h1>
+      <p>Gastos, Tareas, Apuntes e Historial de Movimientos</p>
+    </header>
+
+    <div class="grid">
+      <!-- Crear Carpeta -->
+      <div class="card">
+        <h2>Nueva Carpeta</h2>
+        <input type="text" id="carpeta-nombre" placeholder="Nombre de carpeta (ej: Casa, Estudio)">
+        <button onclick="crearCarpeta()">Crear Carpeta</button>
+        <ul id="lista-carpetas"></ul>
+      </div>
+
+      <!-- Registrar Gasto -->
+      <div class="card">
+        <h2>Registrar Gasto</h2>
+        <select id="gasto-carpeta"></select>
+        <input type="text" id="gasto-concepto" placeholder="Concepto (ej: Compra Supermercado)">
+        <input type="number" id="gasto-monto" placeholder="Monto ($)">
+        <label>Comprobante / Ticket (Imagen):</label>
+        <input type="file" id="gasto-foto" accept="image/*">
+        <button onclick="guardarGasto()">Guardar Gasto</button>
+      </div>
+
+      <!-- Crear Tarea -->
+      <div class="card">
+        <h2>Nueva Tarea / Recordatorio</h2>
+        <select id="tarea-carpeta"></select>
+        <input type="text" id="tarea-titulo" placeholder="Título de la tarea">
+        <button onclick="guardarTarea()">Agregar Tarea</button>
+        <ul id="lista-tareas"></ul>
+      </div>
+    </div>
+
+    <!-- Historial de Movimientos -->
+    <div class="card" style="margin-top: 20px;">
+      <h2>📋 Historial de Movimientos (Fecha y Hora)</h2>
+      <ul id="lista-historial"></ul>
+    </div>
   </div>
 
   <script>
-    const SUPABASE_URL = "ENV_SUPABASE_URL";
-    const SUPABASE_KEY = "ENV_SUPABASE_KEY";
+    const SUPABASE_URL = "https://vluozfvttzowdmkgxebm.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_O6ObRbjOi3Ga366q5sRyeg_zlVK7Bbj";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    if (SUPABASE_URL.startsWith("http")) {
-      document.getElementById("status").innerHTML = "<p style='color:green;'>✅ Conexión exitosa con Supabase.</p>";
-    } else {
-      document.getElementById("status").innerHTML = "<p style='color:red;'>⚠️ Falta configurar las variables de entorno en Vercel.</p>";
+    async function cargarDatos() {
+      // Cargar carpetas
+      const { data: carpetas } = await supabase.from('carpetas').select('*');
+      const selectGasto = document.getElementById('gasto-carpeta');
+      const selectTarea = document.getElementById('tarea-carpeta');
+      const listaCarpetas = document.getElementById('lista-carpetas');
+
+      selectGasto.innerHTML = '<option value="">Sin carpeta</option>';
+      selectTarea.innerHTML = '<option value="">Sin carpeta</option>';
+      listaCarpetas.innerHTML = '';
+
+      carpetas?.forEach(c => {
+        selectGasto.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        selectTarea.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        listaCarpetas.innerHTML += `<li>📁 ${c.nombre}</li>`;
+      });
+
+      // Cargar tareas
+      const { data: tareas } = await supabase.from('tareas').select('*').order('creado_en', { ascending: false });
+      const listaTareas = document.getElementById('lista-tareas');
+      listaTareas.innerHTML = '';
+      tareas?.forEach(t => {
+        listaTareas.innerHTML += `<li>${t.completada ? '✅' : '📌'} ${t.titulo}</li>`;
+      });
+
+      // Cargar historial
+      const { data: historial } = await supabase.from('historial_movimientos').select('*').order('fecha_hora', { ascending: false });
+      const listaHistorial = document.getElementById('lista-historial');
+      listaHistorial.innerHTML = '';
+      historial?.forEach(h => {
+        const fecha = new Date(h.fecha_hora).toLocaleString('es-AR');
+        listaHistorial.innerHTML += `<li>
+          <span class="badge">${fecha}</span>
+          <strong>${h.tipo_accion}</strong> en <em>${h.entidad}</em>: ${JSON.stringify(h.detalles)}
+        </li>`;
+      });
     }
+
+    async function registrarHistorial(accion, entidad, detalles) {
+      await supabase.from('historial_movimientos').insert([{ tipo_accion: accion, entidad: entidad, detalles: detalles }]);
+    }
+
+    async function crearCarpeta() {
+      const nombre = document.getElementById('carpeta-nombre').value;
+      if (!nombre) return alert('Escribí un nombre');
+      const { data, error } = await supabase.from('carpetas').insert([{ nombre }]).select();
+      if (!error) {
+        await registrarHistorial('CREAR', 'carpetas', { nombre });
+        document.getElementById('carpeta-nombre').value = '';
+        cargarDatos();
+      }
+    }
+
+    async function guardarGasto() {
+      const carpeta_id = document.getElementById('gasto-carpeta').value || null;
+      const concepto = document.getElementById('gasto-concepto').value;
+      const monto = document.getElementById('gasto-monto').value;
+      const archivo = document.getElementById('gasto-foto').files[0];
+      let comprobante_url = null;
+
+      if (!concepto || !monto) return alert('Completá el concepto y el monto');
+
+      if (archivo) {
+        const fileExt = archivo.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const { data: uploadData } = await supabase.storage.from('adjuntos').upload(fileName, archivo);
+        if (uploadData) {
+          const { data: urlData } = supabase.storage.from('adjuntos').getPublicUrl(fileName);
+          comprobante_url = urlData.publicUrl;
+        }
+      }
+
+      const { error } = await supabase.from('gastos').insert([{ carpeta_id, concepto, monto: parseFloat(monto), comprobante_url }]);
+      if (!error) {
+        await registrarHistorial('CREAR', 'gastos', { concepto, monto, con_foto: !!comprobante_url });
+        document.getElementById('gasto-concepto').value = '';
+        document.getElementById('gasto-monto').value = '';
+        document.getElementById('gasto-foto').value = '';
+        cargarDatos();
+        alert('Gasto registrado con éxito');
+      }
+    }
+
+    async function guardarTarea() {
+      const carpeta_id = document.getElementById('tarea-carpeta').value || null;
+      const titulo = document.getElementById('tarea-titulo').value;
+      if (!titulo) return alert('Escribí el título de la tarea');
+
+      const { error } = await supabase.from('tareas').insert([{ carpeta_id, titulo }]);
+      if (!error) {
+        await registrarHistorial('CREAR', 'tareas', { titulo });
+        document.getElementById('tarea-titulo').value = '';
+        cargarDatos();
+      }
+    }
+
+    cargarDatos();
   </script>
 </body>
 </html>

@@ -2,204 +2,385 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gestor Personal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Mi Gestor</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <!-- Cliente de Supabase (debe cargar ANTES que nuestro script) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
   :root{
-    --bg: #10141a;
-    --card: #171d25;
-    --card-2: #1d242d;
-    --line: #2a323c;
-    --ink: #edf0f3;
-    --ink-dim: #9aa5b1;
-    --accent: #e8a33d;
-    --accent-ink: #10141a;
-    --danger: #d1654f;
-    --ok: #4caf7d;
-    --radius: 10px;
+    --paper: #F0EEE4;
+    --card: #FFFFFF;
+    --ink: #202A22;
+    --ink-soft: #66766A;
+    --line: #E1DDCE;
+    --pine: #33544A;
+    --pine-dark: #24403A;
+    --pine-tint: #E7EEEA;
+    --gold: #A8793D;
+    --gold-tint: #F3E7D6;
+    --danger: #AE4E3B;
+    --danger-tint: #F5E3DD;
+    --ok: #3E7A5C;
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 9px;
   }
-  *{ box-sizing: border-box; }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body{ height: 100%; }
   body{
     margin:0;
-    background: var(--bg);
+    background: var(--paper);
     color: var(--ink);
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
   }
-  header{
-    padding: 28px 24px 18px;
-    border-bottom: 1px solid var(--line);
+  h1, h2, h3{ font-family: "Fraunces", Georgia, serif; }
+
+  .app-shell{
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
-  header h1{
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    padding: max(18px, env(safe-area-inset-top)) 20px 14px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .topbar h1{
     margin:0;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+    color: var(--pine-dark);
   }
-  #status-bar{
-    font-size: 0.85rem;
-    color: var(--ink-dim);
-    margin-top: 6px;
-  }
-  #status-bar.error{ color: var(--danger); }
-  #status-bar.ok{ color: var(--ok); }
-
-  main{
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 24px;
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 20px;
-  }
-  @media (max-width: 760px){
-    main{ grid-template-columns: 1fr; }
-  }
-
-  .panel{
+  .chip-carpeta{
+    display:flex;
+    align-items:center;
+    gap: 8px;
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 16px;
-  }
-  .panel h2{
-    margin: 0 0 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--ink);
-  }
-
-  input, select, button, textarea{
+    border-radius: 999px;
+    padding: 9px 14px 9px 16px;
     font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--ink);
+    max-width: 62%;
+    cursor: pointer;
+  }
+  .chip-carpeta span{
+    overflow:hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .chip-carpeta svg{ flex-shrink:0; }
+
+  #status-bar{
+    margin: 0 20px 8px;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+  #status-bar.error{ color: var(--danger); }
+  #status-bar.ok{ display:none; }
+
+  /* ---------- Content / Views ---------- */
+  .content{ flex:1; padding: 4px 20px 20px; }
+  .view{ display:none; }
+  .view.active{ display:block; animation: fadein .18s ease; }
+  @keyframes fadein{ from{ opacity:0; transform: translateY(4px);} to{ opacity:1; transform:none; } }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 16px 16px 14px;
+    margin-bottom: 16px;
+  }
+  .card h2{
+    margin: 0 0 12px;
+    font-size: 1.02rem;
+    font-weight: 600;
+    color: var(--pine-dark);
+  }
+  .placeholder-carpeta{
+    text-align:center;
+    padding: 34px 18px;
+    color: var(--ink-soft);
     font-size: 0.92rem;
   }
-  input[type=text], input[type=number], input[type=file], select, textarea{
+  .placeholder-carpeta button{ margin-top: 12px; }
+
+  /* ---------- Inputs & buttons ---------- */
+  input, select, button, textarea{ font-family: inherit; font-size: 0.95rem; }
+  input[type=text], input[type=number], input[type=file]{
     width: 100%;
-    background: var(--card-2);
+    background: var(--paper);
     border: 1px solid var(--line);
     color: var(--ink);
-    border-radius: 8px;
-    padding: 9px 10px;
-    margin-bottom: 8px;
+    border-radius: var(--radius-sm);
+    padding: 12px 13px;
+    margin-bottom: 9px;
   }
-  input:focus, select:focus, textarea:focus{
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
+  input[type=file]{ padding: 9px 10px; }
+  input:focus{ outline: 2px solid var(--pine); outline-offset: 1px; }
+  .fila-doble{ display:flex; gap: 8px; }
+  .fila-doble input{ flex:1; }
+
   button{
-    background: var(--accent);
-    color: var(--accent-ink);
+    background: var(--pine);
+    color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
     font-weight: 600;
     cursor: pointer;
+    width: 100%;
   }
-  button:hover{ filter: brightness(1.08); }
-  button:disabled{ opacity: 0.6; cursor: not-allowed; }
+  button:active{ transform: scale(0.98); }
+  button:disabled{ opacity: 0.55; cursor: not-allowed; }
   button.secondary{
     background: transparent;
-    color: var(--ink);
+    color: var(--ink-soft);
     border: 1px solid var(--line);
     font-weight: 500;
+    width: auto;
+    padding: 7px 11px;
   }
+  button.icon-btn{
+    width: auto;
+    padding: 8px;
+    background: transparent;
+    border-radius: 999px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  button.icon-btn:active{ background: var(--pine-tint); }
+  button.danger-text{ color: var(--danger); border-color: var(--danger-tint); }
 
-  #lista-carpetas{ list-style:none; padding:0; margin:0; }
-  #lista-carpetas li{
-    padding: 9px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 4px;
-    color: var(--ink-dim);
-    border: 1px solid transparent;
-  }
-  #lista-carpetas li:hover{ background: var(--card-2); }
-  #lista-carpetas li.activa{
-    background: var(--card-2);
-    color: var(--ink);
-    border-color: var(--accent);
-  }
-
-  .content-panels{
-    display: grid;
-    gap: 20px;
-  }
-  .lista-items{ list-style:none; padding:0; margin: 10px 0 0; }
+  /* ---------- List items ---------- */
+  .lista-items{ list-style:none; padding:0; margin: 4px 0 0; }
   .lista-items li{
     display:flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
-    padding: 8px 0;
+    padding: 12px 2px;
     border-bottom: 1px solid var(--line);
     font-size: 0.92rem;
   }
   .lista-items li:last-child{ border-bottom: none; }
-  .item-monto{ color: var(--accent); font-weight: 600; white-space: nowrap; }
-  .item-check{ display:flex; align-items:center; gap:8px; }
-  .completada{ text-decoration: line-through; color: var(--ink-dim); }
-  .vacio{ color: var(--ink-dim); font-size: 0.88rem; padding: 6px 0; }
-  a.comprobante{ color: var(--accent); font-size: 0.8rem; }
+  .item-monto{ color: var(--gold); font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .item-check{ display:flex; align-items:center; gap:10px; }
+  .item-check input[type=checkbox]{ width: 20px; height: 20px; accent-color: var(--pine); flex-shrink:0; }
+  .completada{ text-decoration: line-through; color: var(--ink-soft); }
+  .vacio{ color: var(--ink-soft); font-size: 0.88rem; padding: 10px 2px; justify-content: center !important; }
+  a.archivo-link{ color: var(--ink); font-weight: 500; text-decoration: none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fila-derecha{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
 
-  #historial{
-    max-height: 220px;
-    overflow-y: auto;
-    font-size: 0.82rem;
-    color: var(--ink-dim);
+  #historial{ font-size: 0.85rem; color: var(--ink-soft); }
+  #historial div{ padding: 9px 2px; border-bottom: 1px solid var(--line); }
+  #historial div:last-child{ border-bottom:none; }
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--card);
+    border-top: 1px solid var(--line);
+    display:flex;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    z-index: 20;
   }
-  #historial div{ padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .nav-btn{
+    flex:1;
+    background: transparent;
+    color: var(--ink-soft);
+    border:none;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    gap: 3px;
+    padding: 7px 2px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+  }
+  .nav-btn.active{ color: var(--pine); background: var(--pine-tint); }
+  .nav-btn svg{ width:22px; height:22px; }
+
+  /* ---------- Bottom sheet (Carpetas) ---------- */
+  .sheet-backdrop{
+    position: fixed; inset:0;
+    background: rgba(20,26,22,0.4);
+    opacity:0; pointer-events:none;
+    transition: opacity .2s ease;
+    z-index: 30;
+  }
+  .sheet-backdrop.open{ opacity:1; pointer-events:auto; }
+
+  .sheet{
+    position: fixed;
+    left:0; right:0; bottom:0;
+    max-width: 560px;
+    margin: 0 auto;
+    background: var(--paper);
+    border-radius: 22px 22px 0 0;
+    padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+    max-height: 78vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform .25s cubic-bezier(.32,.72,0,1);
+    z-index: 31;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+  }
+  .sheet.open{ transform: translateY(0); }
+  .sheet-handle{
+    width: 38px; height: 4px;
+    background: var(--line);
+    border-radius: 3px;
+    margin: 4px auto 14px;
+  }
+  .sheet h2{ margin: 0 0 12px; font-size: 1.1rem; color: var(--pine-dark); }
+  .sheet .add-row{ display:flex; gap:8px; margin-bottom: 14px; }
+  .sheet .add-row input{ margin-bottom:0; }
+  .sheet .add-row button{ width: auto; padding: 0 16px; }
+
+  #lista-carpetas{ list-style:none; padding:0; margin:0; }
+  #lista-carpetas li{
+    display:flex; align-items:center; gap:8px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  #lista-carpetas li:last-child{ border-bottom:none; }
+  #lista-carpetas li.activa .nombre-carpeta{ color: var(--pine); font-weight:600; }
+  .nombre-carpeta{
+    flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    cursor:pointer; padding: 4px 0;
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Gestor Personal</h1>
+<div class="app-shell">
+
+  <header class="topbar">
+    <h1>Mi Gestor</h1>
+    <button id="btn-abrir-carpetas" class="chip-carpeta">
+      <span id="carpeta-label">Elegí una carpeta</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 8l8 8 8-8"/></svg>
+    </button>
+  </header>
+
   <div id="status-bar">Conectando con Supabase...</div>
-</header>
 
-<main>
-  <!-- Columna izquierda: Carpetas -->
-  <section class="panel">
+  <main class="content">
+
+    <!-- GASTOS -->
+    <section class="view active" data-view="gastos">
+      <div id="placeholder-gastos" class="card placeholder-carpeta" style="display:none">
+        Elegí o creá una carpeta para empezar a cargar gastos.
+        <br><button id="btn-placeholder-gastos" style="width:auto; margin-top:14px;">Elegir carpeta</button>
+      </div>
+      <div id="contenido-gastos">
+        <div class="card">
+          <h2>Nuevo gasto</h2>
+          <input type="text" id="input-concepto" placeholder="Concepto" />
+          <input type="number" id="input-monto" placeholder="Monto" step="0.01" />
+          <button id="btn-guardar-gasto">Guardar gasto</button>
+        </div>
+        <div class="card">
+          <h2>Gastos de esta carpeta</h2>
+          <ul class="lista-items" id="lista-gastos"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAREAS -->
+    <section class="view" data-view="tareas">
+      <div id="placeholder-tareas" class="card placeholder-carpeta" style="display:none">
+        Elegí o creá una carpeta para empezar a agregar tareas.
+        <br><button id="btn-placeholder-tareas" style="width:auto; margin-top:14px;">Elegir carpeta</button>
+      </div>
+      <div id="contenido-tareas">
+        <div class="card">
+          <h2>Nueva tarea</h2>
+          <input type="text" id="input-tarea" placeholder="Título de la tarea" />
+          <button id="btn-agregar-tarea">Agregar tarea</button>
+        </div>
+        <div class="card">
+          <h2>Tareas de esta carpeta</h2>
+          <ul class="lista-items" id="lista-tareas"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARCHIVOS -->
+    <section class="view" data-view="archivos">
+      <div class="card">
+        <h2>Subir archivo</h2>
+        <input type="file" id="input-archivo" />
+        <button id="btn-subir-archivo">Subir archivo</button>
+      </div>
+      <div class="card">
+        <h2>Tus archivos</h2>
+        <ul class="lista-items" id="lista-archivos"></ul>
+      </div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section class="view" data-view="historial">
+      <div class="card">
+        <h2>Historial de movimientos</h2>
+        <div id="historial"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="gastos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="8" cy="14.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+      Gastos
+    </button>
+    <button class="nav-btn" data-view="tareas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+      Tareas
+    </button>
+    <button class="nav-btn" data-view="archivos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8V6a3 3 0 00-6 0v9a2 2 0 004 0V8"/></svg>
+      Archivos
+    </button>
+    <button class="nav-btn" data-view="historial">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      Historial
+    </button>
+  </nav>
+
+  <div id="sheet-backdrop" class="sheet-backdrop"></div>
+  <div id="sheet-carpetas" class="sheet">
+    <div class="sheet-handle"></div>
     <h2>Carpetas</h2>
-    <input type="text" id="input-carpeta" placeholder="Nombre de la carpeta" />
-    <button id="btn-crear-carpeta" style="width:100%">Crear Carpeta</button>
-    <ul id="lista-carpetas" style="margin-top:14px"></ul>
-  </section>
-
-  <!-- Columna derecha: Gastos, Tareas, Historial -->
-  <section class="content-panels">
-    <div class="panel">
-      <h2>Gastos <span id="carpeta-actual-gastos" style="color:var(--ink-dim); font-weight:400"></span></h2>
-      <input type="text" id="input-concepto" placeholder="Concepto" />
-      <input type="number" id="input-monto" placeholder="Monto" step="0.01" />
-      <button id="btn-guardar-gasto">Guardar Gasto</button>
-      <ul class="lista-items" id="lista-gastos"></ul>
+    <div class="add-row">
+      <input type="text" id="input-carpeta" placeholder="Nueva carpeta" />
+      <button id="btn-crear-carpeta">Crear</button>
     </div>
+    <ul id="lista-carpetas"></ul>
+  </div>
 
-    <div class="panel">
-      <h2>Tareas <span id="carpeta-actual-tareas" style="color:var(--ink-dim); font-weight:400"></span></h2>
-      <input type="text" id="input-tarea" placeholder="Título de la tarea" />
-      <button id="btn-agregar-tarea">Agregar Tarea</button>
-      <ul class="lista-items" id="lista-tareas"></ul>
-    </div>
-
-    <div class="panel">
-      <h2>Archivos</h2>
-      <input type="file" id="input-archivo" />
-      <button id="btn-subir-archivo">Subir Archivo</button>
-      <ul class="lista-items" id="lista-archivos"></ul>
-    </div>
-
-    <div class="panel">
-      <h2>Historial de movimientos</h2>
-      <div id="historial"></div>
-    </div>
-  </section>
-</main>
+</div>
 
 <script>
 (function () {
@@ -230,14 +411,13 @@
   } catch (err) {
     console.error("Error inicializando Supabase:", err);
     setStatus("Error al conectar con Supabase: " + err.message, "error");
-    // No hacemos "return" del IIFE completo para que el resto del archivo
-    // no rompa, pero cada función de abajo revisa supabaseClient antes de usarlo.
   }
 
   // ---------------------------------------------------------------
   // 2) ESTADO LOCAL
   // ---------------------------------------------------------------
   let carpetaActualId = null;
+  let carpetaActualNombre = null;
 
   // ---------------------------------------------------------------
   // 3) HELPERS
@@ -270,8 +450,46 @@
       .replace(/"/g, "&quot;");
   }
 
+  function actualizarPlaceholders() {
+    const hayCarpeta = carpetaActualId !== null;
+    document.getElementById("placeholder-gastos").style.display = hayCarpeta ? "none" : "block";
+    document.getElementById("contenido-gastos").style.display = hayCarpeta ? "block" : "none";
+    document.getElementById("placeholder-tareas").style.display = hayCarpeta ? "none" : "block";
+    document.getElementById("contenido-tareas").style.display = hayCarpeta ? "block" : "none";
+  }
+
   // ---------------------------------------------------------------
-  // 4) CARPETAS
+  // 4) NAVEGACIÓN ENTRE VISTAS (bottom nav)
+  // ---------------------------------------------------------------
+  function mostrarVista(nombre) {
+    document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.dataset.view === nombre));
+    document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === nombre));
+  }
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => mostrarVista(btn.dataset.view));
+  });
+
+  // ---------------------------------------------------------------
+  // 5) BOTTOM SHEET DE CARPETAS
+  // ---------------------------------------------------------------
+  const sheet = document.getElementById("sheet-carpetas");
+  const sheetBackdrop = document.getElementById("sheet-backdrop");
+
+  function abrirSheet() {
+    sheet.classList.add("open");
+    sheetBackdrop.classList.add("open");
+  }
+  function cerrarSheet() {
+    sheet.classList.remove("open");
+    sheetBackdrop.classList.remove("open");
+  }
+  document.getElementById("btn-abrir-carpetas").addEventListener("click", abrirSheet);
+  document.getElementById("btn-placeholder-gastos").addEventListener("click", abrirSheet);
+  document.getElementById("btn-placeholder-tareas").addEventListener("click", abrirSheet);
+  sheetBackdrop.addEventListener("click", cerrarSheet);
+
+  // ---------------------------------------------------------------
+  // 6) CARPETAS
   // ---------------------------------------------------------------
   async function cargarCarpetas() {
     if (!supabaseClient) return;
@@ -290,140 +508,64 @@
     ul.innerHTML = "";
 
     if (!data || data.length === 0) {
-      ul.innerHTML = '<li class="vacio">Todavía no hay carpetas.</li>';
+      ul.innerHTML = '<li class="vacio">Todavía no hay carpetas. Creá la primera arriba.</li>';
+      carpetaActualId = null;
+      document.getElementById("carpeta-label").textContent = "Elegí una carpeta";
+      actualizarPlaceholders();
+      abrirSheet();
       return;
     }
 
     data.forEach((carpeta) => {
       const li = document.createElement("li");
       li.dataset.id = carpeta.id;
-      li.style.display = "flex";
-      li.style.justifyContent = "space-between";
-      li.style.alignItems = "center";
-      li.style.gap = "6px";
       if (carpeta.id === carpetaActualId) li.classList.add("activa");
 
       const nombreSpan = document.createElement("span");
+      nombreSpan.className = "nombre-carpeta";
       nombreSpan.textContent = carpeta.nombre;
-      nombreSpan.style.flex = "1";
-      nombreSpan.style.overflow = "hidden";
-      nombreSpan.style.textOverflow = "ellipsis";
-      nombreSpan.style.whiteSpace = "nowrap";
       nombreSpan.addEventListener("click", () => seleccionarCarpeta(carpeta.id, carpeta.nombre));
 
-      const acciones = document.createElement("span");
-      acciones.style.display = "flex";
-      acciones.style.gap = "4px";
-
       const btnEditar = document.createElement("button");
-      btnEditar.className = "secondary";
-      btnEditar.textContent = "✎";
+      btnEditar.className = "icon-btn";
+      btnEditar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
       btnEditar.title = "Renombrar";
-      btnEditar.style.padding = "2px 7px";
-      btnEditar.style.fontSize = "0.8rem";
       btnEditar.addEventListener("click", (e) => {
         e.stopPropagation();
         editarCarpeta(carpeta);
       });
 
       const btnBorrar = document.createElement("button");
-      btnBorrar.className = "secondary";
-      btnBorrar.textContent = "🗑";
+      btnBorrar.className = "icon-btn danger-text";
+      btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
       btnBorrar.title = "Eliminar";
-      btnBorrar.style.padding = "2px 7px";
-      btnBorrar.style.fontSize = "0.8rem";
       btnBorrar.addEventListener("click", (e) => {
         e.stopPropagation();
         eliminarCarpeta(carpeta);
       });
 
-      acciones.appendChild(btnEditar);
-      acciones.appendChild(btnBorrar);
       li.appendChild(nombreSpan);
-      li.appendChild(acciones);
+      li.appendChild(btnEditar);
+      li.appendChild(btnBorrar);
       ul.appendChild(li);
     });
 
-    // Si no hay carpeta seleccionada todavía, seleccionamos la primera automáticamente
-    if (carpetaActualId === null && data.length > 0) {
+    if (carpetaActualId === null) {
       seleccionarCarpeta(data[0].id, data[0].nombre);
-    }
-  }
-
-  async function editarCarpeta(carpeta) {
-    if (!checarCliente()) return;
-
-    const nuevoNombre = prompt("Nuevo nombre para la carpeta:", carpeta.nombre);
-    if (nuevoNombre === null) return; // canceló
-    const nombreLimpio = nuevoNombre.trim();
-    if (!nombreLimpio) {
-      alert("El nombre no puede quedar vacío.");
-      return;
-    }
-    if (nombreLimpio === carpeta.nombre) return; // sin cambios
-
-    try {
-      const { error } = await supabaseClient
-        .from("carpetas")
-        .update({ nombre: nombreLimpio })
-        .eq("id", carpeta.id);
-
-      if (error) throw error;
-
-      await cargarCarpetas();
-      if (carpetaActualId === carpeta.id) {
-        document.getElementById("carpeta-actual-gastos").textContent = "· " + nombreLimpio;
-        document.getElementById("carpeta-actual-tareas").textContent = "· " + nombreLimpio;
-      }
-      registrarHistorial("modificar", "carpeta", { id: carpeta.id, antes: carpeta.nombre, despues: nombreLimpio });
-    } catch (err) {
-      console.error("Error renombrando carpeta:", err);
-      alert("No se pudo renombrar la carpeta: " + err.message);
-    }
-  }
-
-  async function eliminarCarpeta(carpeta) {
-    if (!checarCliente()) return;
-
-    const confirmado = confirm(
-      `¿Eliminar la carpeta "${carpeta.nombre}"? Esto también borra sus gastos y tareas asociadas.`
-    );
-    if (!confirmado) return;
-
-    try {
-      const { error } = await supabaseClient
-        .from("carpetas")
-        .delete()
-        .eq("id", carpeta.id);
-
-      if (error) throw error;
-
-      const eraLaActual = carpetaActualId === carpeta.id;
-      if (eraLaActual) {
-        carpetaActualId = null;
-        document.getElementById("carpeta-actual-gastos").textContent = "";
-        document.getElementById("carpeta-actual-tareas").textContent = "";
-        document.getElementById("lista-gastos").innerHTML = "";
-        document.getElementById("lista-tareas").innerHTML = "";
-      }
-
-      await cargarCarpetas();
-      registrarHistorial("eliminar", "carpeta", { id: carpeta.id, nombre: carpeta.nombre });
-    } catch (err) {
-      console.error("Error eliminando carpeta:", err);
-      alert("No se pudo eliminar la carpeta: " + err.message);
     }
   }
 
   function seleccionarCarpeta(id, nombre) {
     carpetaActualId = id;
+    carpetaActualNombre = nombre;
     document.querySelectorAll("#lista-carpetas li").forEach((li) => {
       li.classList.toggle("activa", Number(li.dataset.id) === Number(id));
     });
-    document.getElementById("carpeta-actual-gastos").textContent = "· " + nombre;
-    document.getElementById("carpeta-actual-tareas").textContent = "· " + nombre;
+    document.getElementById("carpeta-label").textContent = nombre;
+    actualizarPlaceholders();
     cargarGastos();
     cargarTareas();
+    cerrarSheet();
   }
 
   async function crearCarpeta() {
@@ -461,8 +603,73 @@
     }
   }
 
+  async function editarCarpeta(carpeta) {
+    if (!checarCliente()) return;
+
+    const nuevoNombre = prompt("Nuevo nombre para la carpeta:", carpeta.nombre);
+    if (nuevoNombre === null) return;
+    const nombreLimpio = nuevoNombre.trim();
+    if (!nombreLimpio) {
+      alert("El nombre no puede quedar vacío.");
+      return;
+    }
+    if (nombreLimpio === carpeta.nombre) return;
+
+    try {
+      const { error } = await supabaseClient
+        .from("carpetas")
+        .update({ nombre: nombreLimpio })
+        .eq("id", carpeta.id);
+
+      if (error) throw error;
+
+      await cargarCarpetas();
+      if (carpetaActualId === carpeta.id) {
+        carpetaActualNombre = nombreLimpio;
+        document.getElementById("carpeta-label").textContent = nombreLimpio;
+      }
+      registrarHistorial("modificar", "carpeta", { id: carpeta.id, antes: carpeta.nombre, despues: nombreLimpio });
+    } catch (err) {
+      console.error("Error renombrando carpeta:", err);
+      alert("No se pudo renombrar la carpeta: " + err.message);
+    }
+  }
+
+  async function eliminarCarpeta(carpeta) {
+    if (!checarCliente()) return;
+
+    const confirmado = confirm(
+      `¿Eliminar la carpeta "${carpeta.nombre}"? Esto también borra sus gastos y tareas asociadas.`
+    );
+    if (!confirmado) return;
+
+    try {
+      const { error } = await supabaseClient
+        .from("carpetas")
+        .delete()
+        .eq("id", carpeta.id);
+
+      if (error) throw error;
+
+      if (carpetaActualId === carpeta.id) {
+        carpetaActualId = null;
+        carpetaActualNombre = null;
+        document.getElementById("carpeta-label").textContent = "Elegí una carpeta";
+        document.getElementById("lista-gastos").innerHTML = "";
+        document.getElementById("lista-tareas").innerHTML = "";
+        actualizarPlaceholders();
+      }
+
+      await cargarCarpetas();
+      registrarHistorial("eliminar", "carpeta", { id: carpeta.id, nombre: carpeta.nombre });
+    } catch (err) {
+      console.error("Error eliminando carpeta:", err);
+      alert("No se pudo eliminar la carpeta: " + err.message);
+    }
+  }
+
   // ---------------------------------------------------------------
-  // 5) GASTOS (incluye subida de comprobante al bucket "adjuntos")
+  // 7) GASTOS
   // ---------------------------------------------------------------
   async function cargarGastos() {
     if (!supabaseClient || carpetaActualId === null) return;
@@ -491,10 +698,10 @@
       const li = document.createElement("li");
 
       const izquierda = document.createElement("span");
-      izquierda.innerHTML = escapeHtml(gasto.concepto);
+      izquierda.textContent = gasto.concepto;
       if (gasto.comprobante_url) {
         const link = document.createElement("a");
-        link.className = "comprobante";
+        link.className = "archivo-link";
         link.href = gasto.comprobante_url;
         link.target = "_blank";
         link.rel = "noopener";
@@ -503,19 +710,15 @@
       }
 
       const derecha = document.createElement("span");
-      derecha.style.display = "flex";
-      derecha.style.alignItems = "center";
-      derecha.style.gap = "8px";
+      derecha.className = "fila-derecha";
 
       const monto = document.createElement("span");
       monto.className = "item-monto";
       monto.textContent = "$" + Number(gasto.monto).toFixed(2);
 
       const btnBorrar = document.createElement("button");
-      btnBorrar.className = "secondary";
-      btnBorrar.textContent = "Eliminar";
-      btnBorrar.style.padding = "4px 8px";
-      btnBorrar.style.fontSize = "0.78rem";
+      btnBorrar.className = "icon-btn danger-text";
+      btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
       btnBorrar.addEventListener("click", () => eliminarGasto(gasto));
 
       derecha.appendChild(monto);
@@ -525,32 +728,6 @@
       li.appendChild(derecha);
       ul.appendChild(li);
     });
-  }
-
-  async function eliminarGasto(gasto) {
-    if (!checarCliente()) return;
-
-    const confirmado = confirm(`¿Eliminar el gasto "${gasto.concepto}" ($${Number(gasto.monto).toFixed(2)})?`);
-    if (!confirmado) return;
-
-    try {
-      const { error } = await supabaseClient
-        .from("gastos")
-        .delete()
-        .eq("id", gasto.id);
-
-      if (error) throw error;
-
-      await cargarGastos();
-      registrarHistorial("eliminar", "gasto", {
-        id: gasto.id,
-        concepto: gasto.concepto,
-        monto: gasto.monto,
-      });
-    } catch (err) {
-      console.error("Error eliminando gasto:", err);
-      alert("No se pudo eliminar el gasto: " + err.message);
-    }
   }
 
   async function guardarGasto() {
@@ -580,11 +757,7 @@
 
     try {
       const { error } = await supabaseClient.from("gastos").insert([
-        {
-          carpeta_id: carpetaActualId,
-          concepto: concepto,
-          monto: monto,
-        },
+        { carpeta_id: carpetaActualId, concepto: concepto, monto: monto },
       ]);
 
       if (error) throw error;
@@ -601,8 +774,26 @@
     }
   }
 
+  async function eliminarGasto(gasto) {
+    if (!checarCliente()) return;
+
+    const confirmado = confirm(`¿Eliminar el gasto "${gasto.concepto}" ($${Number(gasto.monto).toFixed(2)})?`);
+    if (!confirmado) return;
+
+    try {
+      const { error } = await supabaseClient.from("gastos").delete().eq("id", gasto.id);
+      if (error) throw error;
+
+      await cargarGastos();
+      registrarHistorial("eliminar", "gasto", { id: gasto.id, concepto: gasto.concepto, monto: gasto.monto });
+    } catch (err) {
+      console.error("Error eliminando gasto:", err);
+      alert("No se pudo eliminar el gasto: " + err.message);
+    }
+  }
+
   // ---------------------------------------------------------------
-  // 6) TAREAS
+  // 8) TAREAS
   // ---------------------------------------------------------------
   async function cargarTareas() {
     if (!supabaseClient || carpetaActualId === null) return;
@@ -702,7 +893,7 @@
   }
 
   // ---------------------------------------------------------------
-  // 6.5) ARCHIVOS PROPIOS (bucket "adjuntos", independiente de gastos)
+  // 9) ARCHIVOS PROPIOS (bucket "adjuntos", independiente de gastos)
   // ---------------------------------------------------------------
   async function cargarArchivos() {
     if (!supabaseClient) return;
@@ -728,37 +919,25 @@
     }
 
     archivos.forEach((archivo) => {
-      const { data: urlData } = supabaseClient.storage
-        .from("adjuntos")
-        .getPublicUrl(archivo.name);
+      const { data: urlData } = supabaseClient.storage.from("adjuntos").getPublicUrl(archivo.name);
 
       const li = document.createElement("li");
-
       const nombreVisible = archivo.name.replace(/^\d+_/, "");
+
       const link = document.createElement("a");
-      link.className = "comprobante";
+      link.className = "archivo-link";
       link.href = urlData.publicUrl;
       link.target = "_blank";
       link.rel = "noopener";
       link.textContent = nombreVisible;
-      link.style.color = "var(--ink)";
-      link.style.textDecoration = "none";
-
-      const acciones = document.createElement("span");
-      acciones.style.display = "flex";
-      acciones.style.gap = "8px";
-      acciones.style.alignItems = "center";
 
       const btnBorrar = document.createElement("button");
-      btnBorrar.className = "secondary";
-      btnBorrar.textContent = "Eliminar";
-      btnBorrar.style.padding = "4px 8px";
-      btnBorrar.style.fontSize = "0.78rem";
+      btnBorrar.className = "icon-btn danger-text";
+      btnBorrar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
       btnBorrar.addEventListener("click", () => eliminarArchivo(archivo.name, nombreVisible));
 
-      acciones.appendChild(btnBorrar);
       li.appendChild(link);
-      li.appendChild(acciones);
+      li.appendChild(btnBorrar);
       ul.appendChild(li);
     });
   }
@@ -778,9 +957,7 @@
 
     try {
       const nombreArchivo = `${Date.now()}_${archivo.name}`.replace(/\s+/g, "_");
-      const { error } = await supabaseClient.storage
-        .from("adjuntos")
-        .upload(nombreArchivo, archivo);
+      const { error } = await supabaseClient.storage.from("adjuntos").upload(nombreArchivo, archivo);
 
       if (error) throw error;
 
@@ -814,7 +991,7 @@
   }
 
   // ---------------------------------------------------------------
-  // 7) HISTORIAL
+  // 10) HISTORIAL
   // ---------------------------------------------------------------
   async function cargarHistorial() {
     if (!supabaseClient) return;
@@ -859,14 +1036,13 @@
   }
 
   // ---------------------------------------------------------------
-  // 8) EVENTOS (addEventListener, no onclick inline)
+  // 11) EVENTOS (addEventListener, no onclick inline)
   // ---------------------------------------------------------------
   document.getElementById("btn-crear-carpeta").addEventListener("click", crearCarpeta);
   document.getElementById("btn-guardar-gasto").addEventListener("click", guardarGasto);
   document.getElementById("btn-agregar-tarea").addEventListener("click", agregarTarea);
   document.getElementById("btn-subir-archivo").addEventListener("click", subirArchivo);
 
-  // Enter para confirmar en los inputs de texto principales
   document.getElementById("input-carpeta").addEventListener("keydown", (e) => {
     if (e.key === "Enter") crearCarpeta();
   });
@@ -874,7 +1050,6 @@
     if (e.key === "Enter") agregarTarea();
   });
 
-  // Captura global de errores no controlados, para que nunca queden "silenciosos"
   window.addEventListener("error", (e) => {
     console.error("Error no controlado:", e.error || e.message);
   });
@@ -883,8 +1058,9 @@
   });
 
   // ---------------------------------------------------------------
-  // 9) CARGA INICIAL
+  // 12) CARGA INICIAL
   // ---------------------------------------------------------------
+  actualizarPlaceholders();
   if (supabaseClient) {
     cargarCarpetas();
     cargarArchivos();

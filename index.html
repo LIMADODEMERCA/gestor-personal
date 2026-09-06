@@ -302,6 +302,58 @@
   }
   #icono-toggle-completadas{ transition: transform .2s ease; }
 
+  /* ---------- Resumen / Métricas ---------- */
+  .metrica-grande{
+    display:flex; flex-direction:column; align-items:center;
+    padding: 8px 0 18px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+    text-align:center;
+  }
+  .metrica-valor{
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--pine-dark);
+    font-variant-numeric: tabular-nums;
+  }
+  .metrica-label{
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .metricas-fila{ display:flex; justify-content: space-between; gap: 8px; }
+  .metrica-chica{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center;
+    background: var(--paper);
+    border-radius: var(--radius-sm);
+    padding: 12px 6px;
+  }
+  .metrica-valor-chico{
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .lista-barras{ list-style:none; margin:0; padding:0; }
+  .lista-barras li{ padding: 10px 0; }
+  .lista-barras li:not(:last-child){ border-bottom: 1px solid var(--line); }
+  .barra-encabezado{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size: 0.88rem; margin-bottom: 6px;
+  }
+  .barra-encabezado .nombre{ font-weight: 500; }
+  .barra-encabezado .monto{ color: var(--gold); font-weight:600; font-variant-numeric: tabular-nums; }
+  .barra-fondo{
+    background: var(--line);
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .barra-relleno{ background: var(--pine); height: 100%; border-radius: 6px; }
+
   /* ---------- Pantalla de login ---------- */
   #pantalla-login{
     position: fixed; inset:0;
@@ -445,6 +497,54 @@
       </div>
     </section>
 
+    <!-- RESUMEN -->
+    <section class="view" data-view="resumen">
+      <div class="card">
+        <h2>General</h2>
+        <div class="metrica-grande">
+          <span class="metrica-valor" id="resumen-total-general">$0.00</span>
+          <span class="metrica-label">gastado en total</span>
+        </div>
+        <div class="metricas-fila">
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-tareas-pendientes">0</span>
+            <span class="metrica-label">tareas pendientes</span>
+          </div>
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-tareas-completadas">0</span>
+            <span class="metrica-label">completadas</span>
+          </div>
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-archivos">0</span>
+            <span class="metrica-label">archivos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Gasto por carpeta</h2>
+        <ul class="lista-barras" id="resumen-gasto-carpetas"></ul>
+      </div>
+
+      <div class="card" id="resumen-carpeta-actual-card" style="display:none">
+        <h2 id="resumen-carpeta-actual-titulo">Esta carpeta</h2>
+        <div class="metricas-fila">
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-cc-gastado">$0</span>
+            <span class="metrica-label">gastado</span>
+          </div>
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-cc-pendientes">0</span>
+            <span class="metrica-label">pendientes</span>
+          </div>
+          <div class="metrica-chica">
+            <span class="metrica-valor-chico" id="resumen-cc-completadas">0</span>
+            <span class="metrica-label">completadas</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- HISTORIAL -->
     <section class="view" data-view="historial">
       <div class="card">
@@ -467,6 +567,10 @@
     <button class="nav-btn" data-view="archivos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8V6a3 3 0 00-6 0v9a2 2 0 004 0V8"/></svg>
       Archivos
+    </button>
+    <button class="nav-btn" data-view="resumen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-7"/></svg>
+      Resumen
     </button>
     <button class="nav-btn" data-view="historial">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
@@ -675,7 +779,10 @@
     document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === nombre));
   }
   document.querySelectorAll(".nav-btn").forEach((btn) => {
-    btn.addEventListener("click", () => mostrarVista(btn.dataset.view));
+    btn.addEventListener("click", () => {
+      mostrarVista(btn.dataset.view);
+      if (btn.dataset.view === "resumen") cargarResumen();
+    });
   });
 
   // ---------------------------------------------------------------
@@ -1315,6 +1422,83 @@
     if (detalles.nombre) return ` — "${escapeHtml(detalles.nombre)}"`;
     if (detalles.titulo) return ` — "${escapeHtml(detalles.titulo)}"`;
     return "";
+  }
+
+  // ---------------------------------------------------------------
+  // 10.5) RESUMEN / MÉTRICAS
+  // ---------------------------------------------------------------
+  async function cargarResumen() {
+    if (!supabaseClient) return;
+
+    const [carpetasRes, gastosRes, tareasRes, archivosRes] = await Promise.all([
+      supabaseClient.from("carpetas").select("id, nombre"),
+      supabaseClient.from("gastos").select("carpeta_id, monto"),
+      supabaseClient.from("tareas").select("carpeta_id, completada"),
+      supabaseClient.storage.from("adjuntos").list(""),
+    ]);
+
+    if (carpetasRes.error || gastosRes.error || tareasRes.error) {
+      console.error("Error cargando resumen:", carpetasRes.error || gastosRes.error || tareasRes.error);
+      return;
+    }
+
+    const carpetas = carpetasRes.data || [];
+    const gastos = gastosRes.data || [];
+    const tareas = tareasRes.data || [];
+    const archivos = (archivosRes.data || []).filter((f) => f.name && !f.name.endsWith("/"));
+
+    // Total general y por carpeta
+    const totalPorCarpeta = {};
+    let totalGeneral = 0;
+    gastos.forEach((g) => {
+      const monto = Number(g.monto) || 0;
+      totalGeneral += monto;
+      totalPorCarpeta[g.carpeta_id] = (totalPorCarpeta[g.carpeta_id] || 0) + monto;
+    });
+
+    document.getElementById("resumen-total-general").textContent = "$" + totalGeneral.toFixed(2);
+
+    // Tareas generales
+    const pendientesTotal = tareas.filter((t) => !t.completada).length;
+    const completadasTotal = tareas.filter((t) => t.completada).length;
+    document.getElementById("resumen-tareas-pendientes").textContent = pendientesTotal;
+    document.getElementById("resumen-tareas-completadas").textContent = completadasTotal;
+    document.getElementById("resumen-archivos").textContent = archivos.length;
+
+    // Barras de gasto por carpeta
+    const ulBarras = document.getElementById("resumen-gasto-carpetas");
+    ulBarras.innerHTML = "";
+    const filas = carpetas
+      .map((c) => ({ nombre: c.nombre, monto: totalPorCarpeta[c.id] || 0 }))
+      .filter((f) => f.monto > 0)
+      .sort((a, b) => b.monto - a.monto);
+
+    if (filas.length === 0) {
+      ulBarras.innerHTML = '<li class="vacio">Todavía no cargaste gastos.</li>';
+    } else {
+      const max = filas[0].monto;
+      filas.forEach((f) => {
+        const li = document.createElement("li");
+        const porcentaje = max > 0 ? Math.max(4, Math.round((f.monto / max) * 100)) : 0;
+        li.innerHTML =
+          `<div class="barra-encabezado"><span class="nombre">${escapeHtml(f.nombre)}</span><span class="monto">$${f.monto.toFixed(2)}</span></div>` +
+          `<div class="barra-fondo"><div class="barra-relleno" style="width:${porcentaje}%"></div></div>`;
+        ulBarras.appendChild(li);
+      });
+    }
+
+    // Métricas de la carpeta actualmente seleccionada
+    const cardActual = document.getElementById("resumen-carpeta-actual-card");
+    if (carpetaActualId === null) {
+      cardActual.style.display = "none";
+    } else {
+      cardActual.style.display = "block";
+      document.getElementById("resumen-carpeta-actual-titulo").textContent = carpetaActualNombre || "Esta carpeta";
+      document.getElementById("resumen-cc-gastado").textContent = "$" + (totalPorCarpeta[carpetaActualId] || 0).toFixed(2);
+      const tareasCarpeta = tareas.filter((t) => t.carpeta_id === carpetaActualId);
+      document.getElementById("resumen-cc-pendientes").textContent = tareasCarpeta.filter((t) => !t.completada).length;
+      document.getElementById("resumen-cc-completadas").textContent = tareasCarpeta.filter((t) => t.completada).length;
+    }
   }
 
   // ---------------------------------------------------------------

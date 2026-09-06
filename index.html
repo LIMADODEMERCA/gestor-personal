@@ -17,7 +17,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- Cliente de Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -69,65 +68,19 @@
   }
   h1, h2, h3{ font-family: "Fraunces", Georgia, serif; }
 
-  .app-shell{
-    max-width: 560px;
-    margin: 0 auto;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
-  }
-
-  .topbar{
-    padding: max(18px, env(safe-area-inset-top)) 20px 14px;
-    display:flex;
-    align-items:center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .topbar h1{
-    margin:0;
-    font-size: 1.4rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--acento-fuerte);
-  }
-  .chip-carpeta{
-    display:flex;
-    align-items:center;
-    gap: 8px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 9px 14px 9px 16px;
-    font-family: inherit;
-    font-size: 0.86rem;
-    font-weight: 500;
-    color: var(--ink);
-    max-width: 62%;
-    cursor: pointer;
-  }
+  .app-shell{ max-width: 560px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .topbar{ padding: max(18px, env(safe-area-inset-top)) 20px 14px; display:flex; align-items:center; justify-content: space-between; gap: 12px; }
+  .topbar h1{ margin:0; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.01em; color: var(--acento-fuerte); }
+  
+  .chip-carpeta{ display:flex; align-items:center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px 9px 16px; font-family: inherit; font-size: 0.86rem; font-weight: 500; color: var(--ink); max-width: 62%; cursor: pointer; }
   .chip-carpeta span{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
   .chip-carpeta svg{ flex-shrink:0; }
 
-  #btn-tema, #btn-logout{
-    width: auto;
-    flex-shrink: 0;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 9px;
-    display:flex; align-items:center; justify-content:center;
-    color: var(--ink);
-  }
+  #btn-tema, #btn-logout{ width: auto; flex-shrink: 0; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 9px; display:flex; align-items:center; justify-content:center; color: var(--ink); }
   #btn-tema svg{ width:18px; height:18px; }
   .topbar-derecha{ display:flex; align-items:center; gap:8px; }
 
-  #status-bar{
-    margin: 0 20px 8px;
-    font-size: 0.78rem;
-    color: var(--ink-soft);
-  }
+  #status-bar{ margin: 0 20px 8px; font-size: 0.78rem; color: var(--ink-soft); }
   #status-bar.error{ color: var(--danger); }
   #status-bar.ok{ display:none; }
 
@@ -136,83 +89,26 @@
   .view.active{ display:block; animation: fadein .18s ease; }
   @keyframes fadein{ from{ opacity:0; transform: translateY(4px);} to{ opacity:1; transform:none; } }
 
-  .card{
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    padding: 16px 16px 14px;
-    margin-bottom: 16px;
-  }
-  .card h2{
-    margin: 0 0 12px;
-    font-size: 1.02rem;
-    font-weight: 600;
-    color: var(--acento-fuerte);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .placeholder-carpeta{
-    text-align:center;
-    padding: 34px 18px;
-    color: var(--ink-soft);
-    font-size: 0.92rem;
-  }
+  .card{ background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 16px 16px 14px; margin-bottom: 16px; }
+  .card h2{ margin: 0 0 12px; font-size: 1.02rem; font-weight: 600; color: var(--acento-fuerte); display: flex; justify-content: space-between; align-items: center; }
+  .placeholder-carpeta{ text-align:center; padding: 34px 18px; color: var(--ink-soft); font-size: 0.92rem; }
 
   input, select, button, textarea{ font-family: inherit; font-size: 0.95rem; }
-  input[type=text], input[type=number], input[type=date], select, textarea, input[type=file]{
-    width: 100%;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    color: var(--ink);
-    border-radius: var(--radius-sm);
-    padding: 11px 13px;
-    margin-bottom: 9px;
-  }
+  input[type=text], input[type=number], input[type=date], select, textarea, input[type=file]{ width: 100%; background: var(--paper); border: 1px solid var(--line); color: var(--ink); border-radius: var(--radius-sm); padding: 11px 13px; margin-bottom: 9px; }
   textarea{ resize: vertical; min-height: 60px; }
   input:focus, select:focus, textarea:focus{ outline: 2px solid var(--acento); outline-offset: 1px; }
   .fila-doble{ display:flex; gap: 8px; }
   .fila-doble input, .fila-doble select{ flex:1; }
 
-  button{
-    background: var(--acento);
-    color: var(--paper);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-  }
+  button{ background: var(--acento); color: var(--paper); border: none; border-radius: var(--radius-sm); padding: 12px 16px; font-weight: 600; cursor: pointer; width: 100%; }
   button:active{ transform: scale(0.98); }
   button:disabled{ opacity: 0.55; cursor: not-allowed; }
-  button.secondary{
-    background: transparent;
-    color: var(--ink-soft);
-    border: 1px solid var(--line);
-    font-weight: 500;
-    width: auto;
-    padding: 7px 11px;
-  }
-  button.icon-btn{
-    width: auto;
-    padding: 6px;
-    background: transparent;
-    border-radius: 999px;
-    display:flex; align-items:center; justify-content:center;
-    color: var(--ink-soft);
-  }
+  button.secondary{ background: transparent; color: var(--ink-soft); border: 1px solid var(--line); font-weight: 500; width: auto; padding: 7px 11px; }
+  button.icon-btn{ width: auto; padding: 6px; background: transparent; border-radius: 999px; display:flex; align-items:center; justify-content:center; color: var(--ink-soft); }
   button.icon-btn:active{ background: var(--acento-tinte); }
   button.danger-text{ color: var(--danger); border-color: var(--danger-tint); }
 
-  .badge-cat, .badge-prioridad{
-    font-size: 0.72rem;
-    padding: 2px 7px;
-    border-radius: 999px;
-    font-weight: 600;
-    text-transform: capitalize;
-    display: inline-block;
-  }
+  .badge-cat, .badge-prioridad{ font-size: 0.72rem; padding: 2px 7px; border-radius: 999px; font-weight: 600; text-transform: capitalize; display: inline-block; }
   .badge-cat{ background: var(--acento-tinte); color: var(--ink-soft); }
   .prioridad-alta{ background: var(--danger-tint); color: var(--danger); }
   .prioridad-media{ background: var(--gold-tint); color: var(--gold); }
@@ -220,15 +116,7 @@
   .vencida{ color: var(--danger) !important; font-weight: 600; }
 
   .lista-items{ list-style:none; padding:0; margin: 4px 0 0; }
-  .lista-items li{
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 2px;
-    border-bottom: 1px solid var(--line);
-    font-size: 0.92rem;
-  }
+  .lista-items li{ display:flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 2px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
   .lista-items li:last-child{ border-bottom: none; }
   .item-info{ display:flex; flex-direction:column; gap:3px; flex:1; overflow:hidden; }
   .item-titulo{ font-weight: 500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -244,58 +132,14 @@
   #historial{ font-size: 0.85rem; color: var(--ink-soft); }
   #historial div{ padding: 9px 2px; border-bottom: 1px solid var(--line); }
 
-  .bottom-nav{
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    max-width: 560px;
-    margin: 0 auto;
-    background: var(--card);
-    border-top: 1px solid var(--line);
-    display:flex;
-    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
-    z-index: 20;
-  }
-  .nav-btn{
-    flex:1;
-    background: transparent;
-    color: var(--ink-soft);
-    border:none;
-    display:flex;
-    flex-direction: column;
-    align-items:center;
-    gap: 3px;
-    padding: 7px 2px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    border-radius: var(--radius-sm);
-  }
+  .bottom-nav{ position: fixed; left: 0; right: 0; bottom: 0; max-width: 560px; margin: 0 auto; background: var(--card); border-top: 1px solid var(--line); display:flex; padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); z-index: 20; }
+  .nav-btn{ flex:1; background: transparent; color: var(--ink-soft); border:none; display:flex; flex-direction: column; align-items:center; gap: 3px; padding: 7px 2px; font-size: 0.65rem; font-weight: 600; border-radius: var(--radius-sm); }
   .nav-btn.active{ color: var(--acento); background: var(--acento-tinte); }
-  .nav-btn svg{ width:22px; height:22px; }
+  .nav-btn svg{ width:20px; height:20px; }
 
-  .sheet-backdrop{
-    position: fixed; inset:0;
-    background: rgba(20,26,22,0.4);
-    opacity:0; pointer-events:none;
-    transition: opacity .2s ease;
-    z-index: 30;
-  }
+  .sheet-backdrop{ position: fixed; inset:0; background: rgba(20,26,22,0.4); opacity:0; pointer-events:none; transition: opacity .2s ease; z-index: 30; }
   .sheet-backdrop.open{ opacity:1; pointer-events:auto; }
-
-  .sheet{
-    position: fixed;
-    left:0; right:0; bottom:0;
-    max-width: 560px;
-    margin: 0 auto;
-    background: var(--paper);
-    border-radius: 22px 22px 0 0;
-    padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
-    max-height: 82vh;
-    overflow-y: auto;
-    transform: translateY(100%);
-    transition: transform .25s cubic-bezier(.32,.72,0,1);
-    z-index: 31;
-    box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
-  }
+  .sheet{ position: fixed; left:0; right:0; bottom:0; max-width: 560px; margin: 0 auto; background: var(--paper); border-radius: 22px 22px 0 0; padding: 10px 20px calc(20px + env(safe-area-inset-bottom)); max-height: 82vh; overflow-y: auto; transform: translateY(100%); transition: transform .25s cubic-bezier(.32,.72,0,1); z-index: 31; box-shadow: 0 -8px 30px rgba(0,0,0,0.15); }
   .sheet.open{ transform: translateY(0); }
   .sheet-handle{ width: 38px; height: 4px; background: var(--line); border-radius: 3px; margin: 4px auto 14px; }
   .sheet h2{ margin: 0 0 12px; font-size: 1.1rem; color: var(--acento-fuerte); }
@@ -310,7 +154,7 @@
   .metrica-grande{ display:flex; flex-direction:column; align-items:center; padding: 8px 0 18px; border-bottom: 1px solid var(--line); margin-bottom: 14px; text-align:center; }
   .metrica-valor{ font-family: "Fraunces", Georgia, serif; font-size: 2.2rem; font-weight: 600; color: var(--acento-fuerte); font-variant-numeric: tabular-nums; }
   .metrica-label{ font-size: 0.78rem; color: var(--ink-soft); margin-top: 2px; }
-  .metricas-fila{ display:flex; justify-content: space-between; gap: 8px; }
+  .metricas-fila{ display:flex; justify-content: space-between; gap: 8px; margin-bottom:14px; }
   .metrica-chica{ flex:1; display:flex; flex-direction:column; align-items:center; background: var(--paper); border-radius: var(--radius-sm); padding: 12px 6px; }
   .metrica-valor-chico{ font-family: "Fraunces", Georgia, serif; font-size: 1.3rem; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
 
@@ -387,15 +231,14 @@
 
     <!-- FINANZAS -->
     <section class="view active" data-view="gastos">
-      <div id="placeholder-gastos" class="card placeholder-carpeta" style="display:none">
+      <div class="placeholder-carpeta" style="display:none">
         Elegí o creá una carpeta para empezar a cargar movimientos.
-        <br><button id="btn-placeholder-gastos" style="width:auto; margin-top:14px;">Elegir carpeta</button>
+        <br><button class="btn-abrir-carpetas-ph" style="width:auto; margin-top:14px;">Elegir carpeta</button>
       </div>
-      <div id="contenido-gastos">
-
+      <div class="contenido-carpeta">
         <div class="card" id="card-balance">
           <h2>Balance de esta carpeta</h2>
-          <div class="metricas-fila" style="margin-bottom:14px">
+          <div class="metricas-fila">
             <div class="metrica-chica">
               <span class="metrica-valor-chico" id="balance-ingresos" style="color:var(--ok)">$0.00</span>
               <span class="metrica-label">ingresos</span>
@@ -443,10 +286,7 @@
             <button id="btn-guardar-gasto">Guardar gasto</button>
           </div>
           <div class="card">
-            <h2>
-              Movimientos
-              <button class="secondary" id="btn-exportar-gastos" style="font-size:0.75rem; padding:4px 8px;">CSV</button>
-            </h2>
+            <h2>Movimientos <button class="secondary" id="btn-exportar-gastos" style="font-size:0.75rem; padding:4px 8px;">CSV</button></h2>
             <input type="text" id="buscar-gastos" placeholder="Buscar gastos..." />
             <ul class="lista-items" id="lista-gastos"></ul>
           </div>
@@ -464,29 +304,25 @@
             <button id="btn-guardar-ingreso">Guardar ingreso</button>
           </div>
           <div class="card">
-            <h2>
-              Movimientos
-              <button class="secondary" id="btn-exportar-ingresos" style="font-size:0.75rem; padding:4px 8px;">CSV</button>
-            </h2>
+            <h2>Movimientos <button class="secondary" id="btn-exportar-ingresos" style="font-size:0.75rem; padding:4px 8px;">CSV</button></h2>
             <input type="text" id="buscar-ingresos" placeholder="Buscar ingresos..." />
             <ul class="lista-items" id="lista-ingresos"></ul>
           </div>
         </div>
-
       </div>
     </section>
 
     <!-- TAREAS -->
     <section class="view" data-view="tareas">
-      <div id="placeholder-tareas" class="card placeholder-carpeta" style="display:none">
+      <div class="placeholder-carpeta" style="display:none">
         Elegí o creá una carpeta para empezar a agregar tareas.
-        <br><button id="btn-placeholder-tareas" style="width:auto; margin-top:14px;">Elegir carpeta</button>
+        <br><button class="btn-abrir-carpetas-ph" style="width:auto; margin-top:14px;">Elegir carpeta</button>
       </div>
-      <div id="contenido-tareas">
+      <div class="contenido-carpeta">
         <div class="card">
           <h2>Nueva tarea</h2>
           <input type="text" id="input-tarea" placeholder="Título de la tarea" />
-          <textarea id="input-tarea-desc" placeholder="Descripción / Notas adicionales (opcional)"></textarea>
+          <textarea id="input-tarea-desc" placeholder="Descripción / Notas (opcional)"></textarea>
           <div class="fila-doble">
             <input type="date" id="input-tarea-fecha" title="Fecha límite" />
             <select id="select-tarea-prioridad">
@@ -512,6 +348,27 @@
       </div>
     </section>
 
+    <!-- NOTAS (¡NUEVO APARTADO!) -->
+    <section class="view" data-view="notas">
+      <div class="placeholder-carpeta" style="display:none">
+        Elegí o creá una carpeta para empezar a guardar notas.
+        <br><button class="btn-abrir-carpetas-ph" style="width:auto; margin-top:14px;">Elegir carpeta</button>
+      </div>
+      <div class="contenido-carpeta">
+        <div class="card">
+          <h2>Nueva Nota</h2>
+          <input type="text" id="input-nota-titulo" placeholder="Título de la nota" />
+          <textarea id="input-nota-contenido" placeholder="Escribe tu texto acá..." style="min-height: 100px;"></textarea>
+          <button id="btn-guardar-nota">Guardar Nota</button>
+        </div>
+        <div class="card">
+          <h2>Tus Notas</h2>
+          <input type="text" id="buscar-notas" placeholder="Buscar apuntes..." />
+          <ul class="lista-items" id="lista-notas"></ul>
+        </div>
+      </div>
+    </section>
+
     <!-- ARCHIVOS -->
     <section class="view" data-view="archivos">
       <div class="card">
@@ -530,7 +387,7 @@
     <section class="view" data-view="resumen">
       <div class="card">
         <h2>General</h2>
-        <div class="metricas-fila" style="margin-bottom:14px">
+        <div class="metricas-fila">
           <div class="metrica-chica">
             <span class="metrica-valor-chico" id="resumen-ingresos-general" style="color:var(--ok)">$0.00</span>
             <span class="metrica-label">ingresos</span>
@@ -542,16 +399,16 @@
         </div>
         <div class="metrica-grande">
           <span class="metrica-valor" id="resumen-disponible-general">$0.00</span>
-          <span class="metrica-label">disponible en total</span>
+          <span class="metrica-label">disponible total</span>
         </div>
         <div class="metricas-fila">
           <div class="metrica-chica">
             <span class="metrica-valor-chico" id="resumen-tareas-pendientes">0</span>
-            <span class="metrica-label">tareas pendientes</span>
+            <span class="metrica-label">tareas</span>
           </div>
           <div class="metrica-chica">
-            <span class="metrica-valor-chico" id="resumen-tareas-completadas">0</span>
-            <span class="metrica-label">completadas</span>
+            <span class="metrica-valor-chico" id="resumen-notas">0</span>
+            <span class="metrica-label">notas</span>
           </div>
           <div class="metrica-chica">
             <span class="metrica-valor-chico" id="resumen-archivos">0</span>
@@ -563,24 +420,6 @@
       <div class="card">
         <h2>Gasto por carpeta</h2>
         <ul class="lista-barras" id="resumen-gasto-carpetas"></ul>
-      </div>
-
-      <div class="card" id="resumen-carpeta-actual-card" style="display:none">
-        <h2 id="resumen-carpeta-actual-titulo">Esta carpeta</h2>
-        <div class="metricas-fila">
-          <div class="metrica-chica">
-            <span class="metrica-valor-chico" id="resumen-cc-gastado">$0</span>
-            <span class="metrica-label">gastado</span>
-          </div>
-          <div class="metrica-chica">
-            <span class="metrica-valor-chico" id="resumen-cc-pendientes">0</span>
-            <span class="metrica-label">pendientes</span>
-          </div>
-          <div class="metrica-chica">
-            <span class="metrica-valor-chico" id="resumen-cc-completadas">0</span>
-            <span class="metrica-label">completadas</span>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -602,6 +441,10 @@
     <button class="nav-btn" data-view="tareas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
       Tareas
+    </button>
+    <button class="nav-btn" data-view="notas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+      Notas
     </button>
     <button class="nav-btn" data-view="archivos">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8V6a3 3 0 00-6 0v9a2 2 0 004 0V8"/></svg>
@@ -628,13 +471,11 @@
     <ul id="lista-carpetas"></ul>
   </div>
 
-  <!-- MODAL EDITAR EDICIÓN GENERAL -->
   <div id="sheet-editar" class="sheet">
     <div class="sheet-handle"></div>
     <h2 id="titulo-modal-editar">Editar Registro</h2>
     <div id="cuerpo-modal-editar"></div>
   </div>
-
 </div>
 
 <script>
@@ -667,10 +508,7 @@
   const appShell = document.getElementById("app-shell");
   const loginError = document.getElementById("login-error");
 
-  function hoyISO() {
-    return new Date().toISOString().split("T")[0];
-  }
-
+  function hoyISO() { return new Date().toISOString().split("T")[0]; }
   document.getElementById("input-fecha-gasto").value = hoyISO();
   document.getElementById("input-fecha-ingreso").value = hoyISO();
 
@@ -679,11 +517,8 @@
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
     loginError.style.display = "none";
-    if (!email || !password) {
-      loginError.textContent = "Completá email y contraseña.";
-      loginError.style.display = "block";
-      return;
-    }
+    if (!email || !password) { loginError.textContent = "Completá email y contraseña."; loginError.style.display = "block"; return; }
+    
     const boton = document.getElementById("btn-login");
     boton.disabled = true;
     try {
@@ -692,9 +527,7 @@
     } catch (err) {
       loginError.textContent = "Email o contraseña incorrectos.";
       loginError.style.display = "block";
-    } finally {
-      boton.disabled = false;
-    }
+    } finally { boton.disabled = false; }
   }
 
   async function cerrarSesion() {
@@ -705,7 +538,6 @@
   document.getElementById("btn-login").addEventListener("click", iniciarSesion);
   document.getElementById("login-password").addEventListener("keydown", (e) => { if (e.key === "Enter") iniciarSesion(); });
   document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
-
   document.getElementById("btn-ver-password").addEventListener("click", () => {
     const input = document.getElementById("login-password");
     input.type = input.type === "password" ? "text" : "password";
@@ -722,28 +554,20 @@
 
   const SUPABASE_URL = "https://hadcxjjvxqkcuifytxpl.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhZGN4amp2eHFrY3VpZnl0eHBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NjQ1OTQsImV4cCI6MjEwNDI0MDU5NH0.x-rUxLGpw9wP3Dp5Epiie5N2IbwWDtHIoV_cTqtvU_4";
-
   const statusBar = document.getElementById("status-bar");
   let supabaseClient = null;
 
-  function setStatus(msg, tipo) {
-    statusBar.textContent = msg;
-    statusBar.className = tipo || "";
-  }
-
   try {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    setStatus("Conectado a Supabase.", "ok");
+    statusBar.style.display = "none";
   } catch (err) {
-    setStatus("Error al conectar con Supabase: " + err.message, "error");
+    statusBar.textContent = "Error al conectar con Supabase: " + err.message;
+    statusBar.className = "error";
   }
 
   let carpetaActualId = null;
   let carpetaActualNombre = null;
-  let cacheGastos = [];
-  let cacheIngresos = [];
-  let cacheTareas = [];
-  let cacheArchivos = [];
+  let cacheGastos = [], cacheIngresos = [], cacheTareas = [], cacheNotas = [], cacheArchivos = [];
 
   function checarCliente() {
     if (!supabaseClient) { alert("No hay conexión con Supabase."); return false; }
@@ -756,22 +580,19 @@
     cargarHistorial();
   }
 
-  function escapeHtml(str) {
-    return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  }
+  function escapeHtml(str) { return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
   function actualizarPlaceholders() {
     const hayCarpeta = carpetaActualId !== null;
-    document.getElementById("placeholder-gastos").style.display = hayCarpeta ? "none" : "block";
-    document.getElementById("contenido-gastos").style.display = hayCarpeta ? "block" : "none";
-    document.getElementById("placeholder-tareas").style.display = hayCarpeta ? "none" : "block";
-    document.getElementById("contenido-tareas").style.display = hayCarpeta ? "block" : "none";
+    document.querySelectorAll(".placeholder-carpeta").forEach(el => el.style.display = hayCarpeta ? "none" : "block");
+    document.querySelectorAll(".contenido-carpeta").forEach(el => el.style.display = hayCarpeta ? "block" : "none");
   }
 
   function mostrarVista(nombre) {
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.dataset.view === nombre));
     document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.view === nombre));
   }
+  
   document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       mostrarVista(btn.dataset.view);
@@ -791,8 +612,7 @@
   }
 
   document.getElementById("btn-abrir-carpetas").addEventListener("click", () => abrirSheet(sheet));
-  document.getElementById("btn-placeholder-gastos").addEventListener("click", () => abrirSheet(sheet));
-  document.getElementById("btn-placeholder-tareas").addEventListener("click", () => abrirSheet(sheet));
+  document.querySelectorAll(".btn-abrir-carpetas-ph").forEach(btn => btn.addEventListener("click", () => abrirSheet(sheet)));
   sheetBackdrop.addEventListener("click", cerrarSheets);
 
   function descargarCSV(data, nombreArchivo) {
@@ -809,14 +629,13 @@
     URL.revokeObjectURL(url);
   }
 
+  // --- CARPETAS ---
   async function cargarCarpetas() {
     if (!supabaseClient) return;
     const { data, error } = await supabaseClient.from("carpetas").select("*").order("creado_en", { ascending: false });
-    if (error) return setStatus("Error cargando carpetas: " + error.message, "error");
-
+    if (error) return;
     const ul = document.getElementById("lista-carpetas");
     ul.innerHTML = "";
-
     if (!data || data.length === 0) {
       ul.innerHTML = '<li class="vacio">Sin carpetas creadas.</li>';
       carpetaActualId = null;
@@ -825,17 +644,15 @@
       abrirSheet(sheet);
       return;
     }
-
     data.forEach((carpeta) => {
       const li = document.createElement("li");
       li.dataset.id = carpeta.id;
       if (carpeta.id === carpetaActualId) li.classList.add("activa");
-
       const nombreSpan = document.createElement("span");
       nombreSpan.className = "nombre-carpeta";
       nombreSpan.textContent = carpeta.nombre;
       nombreSpan.addEventListener("click", () => seleccionarCarpeta(carpeta.id, carpeta.nombre));
-
+      
       const btnEditar = document.createElement("button");
       btnEditar.className = "icon-btn";
       btnEditar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
@@ -849,7 +666,6 @@
       li.appendChild(nombreSpan); li.appendChild(btnEditar); li.appendChild(btnBorrar);
       ul.appendChild(li);
     });
-
     if (carpetaActualId === null) seleccionarCarpeta(data[0].id, data[0].nombre);
   }
 
@@ -861,6 +677,7 @@
     cargarGastos();
     cargarIngresos();
     cargarTareas();
+    cargarNotas();
     cerrarSheets();
   }
 
@@ -904,6 +721,7 @@
     } catch (err) { alert("Error: " + err.message); }
   }
 
+  // --- FINANZAS ---
   const COLORES_DESGLOSE = ["#D9AE5C", "#5C8A7A", "#A85C6B", "#6B8FB8", "#8A6A3F", "#7B9E8F", "#B85C8F"];
 
   async function cargarBalance() {
@@ -912,11 +730,9 @@
       supabaseClient.from("gastos").select("monto").eq("carpeta_id", carpetaActualId),
       supabaseClient.from("ingresos").select("monto").eq("carpeta_id", carpetaActualId),
     ]);
-
     const totalGastos = (gRes.data || []).reduce((a, g) => a + Number(g.monto), 0);
     const totalIngresos = (iRes.data || []).reduce((a, g) => a + Number(g.monto), 0);
     const disponible = totalIngresos - totalGastos;
-
     document.getElementById("balance-ingresos").textContent = "$" + totalIngresos.toFixed(2);
     document.getElementById("balance-gastos").textContent = "$" + totalGastos.toFixed(2);
     const elDisp = document.getElementById("balance-disponible");
@@ -936,40 +752,24 @@
     const ul = document.getElementById("lista-gastos");
     const cardResumen = document.getElementById("card-resumen-gastos");
     ul.innerHTML = "";
-
     if (!items || items.length === 0) {
       ul.innerHTML = '<li class="vacio">No hay gastos.</li>';
       cardResumen.style.display = "none";
       cargarBalance();
       return;
     }
-
     const total = items.reduce((acc, g) => acc + Number(g.monto), 0);
     const porCat = {};
-    items.forEach((g) => {
-      const cat = g.categoria || "Otros";
-      porCat[cat] = (porCat[cat] || 0) + Number(g.monto);
-    });
-
+    items.forEach((g) => { const cat = g.categoria || "Otros"; porCat[cat] = (porCat[cat] || 0) + Number(g.monto); });
     const filas = Object.entries(porCat).sort((a, b) => b[1] - a[1]);
     let acumulado = 0;
     const segmentos = filas.map(([cat, monto], i) => {
       const pct = total > 0 ? (monto / total) * 100 : 0;
-      const color = COLORES_DESGLOSE[i % COLORES_DESGLOSE.length];
-      const res = `${color} ${acumulado}% ${acumulado + pct}%`;
-      acumulado += pct;
-      return res;
+      const res = `${COLORES_DESGLOSE[i % COLORES_DESGLOSE.length]} ${acumulado}% ${acumulado + pct}%`;
+      acumulado += pct; return res;
     });
-
     document.getElementById("torta-gastos").style.background = `conic-gradient(${segmentos.join(", ")})`;
-    const ulDesglose = document.getElementById("gastos-desglose");
-    ulDesglose.innerHTML = filas.map(([cat, monto], i) => `
-      <li>
-        <span class="punto-leyenda" style="background:${COLORES_DESGLOSE[i % COLORES_DESGLOSE.length]}"></span>
-        <span class="leyenda-nombre">${escapeHtml(cat)}</span>
-        <span class="leyenda-monto">$${monto.toFixed(2)}</span>
-      </li>
-    `).join("");
+    document.getElementById("gastos-desglose").innerHTML = filas.map(([cat, monto], i) => `<li><span class="punto-leyenda" style="background:${COLORES_DESGLOSE[i % COLORES_DESGLOSE.length]}"></span><span class="leyenda-nombre">${escapeHtml(cat)}</span><span class="leyenda-monto">$${monto.toFixed(2)}</span></li>`).join("");
     cardResumen.style.display = "block";
 
     items.forEach((gasto) => {
@@ -977,10 +777,7 @@
       li.innerHTML = `
         <div class="item-info">
           <span class="item-titulo">${escapeHtml(gasto.concepto)}</span>
-          <div class="item-sub">
-            <span class="badge-cat">${escapeHtml(gasto.categoria || 'Otros')}</span>
-            <span>${gasto.fecha || ''}</span>
-          </div>
+          <div class="item-sub"><span class="badge-cat">${escapeHtml(gasto.categoria || 'Otros')}</span><span>${gasto.fecha || ''}</span></div>
         </div>
         <div class="fila-derecha">
           <span class="item-monto">$${Number(gasto.monto).toFixed(2)}</span>
@@ -992,7 +789,6 @@
       li.querySelector(".btn-eliminar-gasto").addEventListener("click", () => eliminarGasto(gasto));
       ul.appendChild(li);
     });
-
     cargarBalance();
   }
 
@@ -1002,9 +798,7 @@
     const monto = parseFloat(document.getElementById("input-monto").value);
     const categoria = document.getElementById("select-categoria-gasto").value;
     const fecha = document.getElementById("input-fecha-gasto").value || hoyISO();
-
     if (!concepto || isNaN(monto)) return alert("Completá concepto y monto válido.");
-
     try {
       const { error } = await supabaseClient.from("gastos").insert([{ carpeta_id: carpetaActualId, concepto, monto, categoria, fecha }]);
       if (error) throw error;
@@ -1034,8 +828,7 @@
       const fecha = document.getElementById("edit-gasto-fecha").value;
       if (!concepto || isNaN(monto)) return alert("Valores inválidos.");
       await supabaseClient.from("gastos").update({ concepto, monto, categoria, fecha }).eq("id", g.id);
-      cerrarSheets();
-      cargarGastos();
+      cerrarSheets(); cargarGastos();
     };
     abrirSheet(sheetEditar);
   }
@@ -1057,18 +850,11 @@
   function renderIngresos(items) {
     const ul = document.getElementById("lista-ingresos");
     ul.innerHTML = "";
-    if (!items || items.length === 0) {
-      ul.innerHTML = '<li class="vacio">No hay ingresos.</li>';
-      cargarBalance();
-      return;
-    }
+    if (!items || items.length === 0) { ul.innerHTML = '<li class="vacio">No hay ingresos.</li>'; cargarBalance(); return; }
     items.forEach((ingreso) => {
       const li = document.createElement("li");
       li.innerHTML = `
-        <div class="item-info">
-          <span class="item-titulo">${escapeHtml(ingreso.concepto)}</span>
-          <span class="item-sub">${ingreso.fecha || ''}</span>
-        </div>
+        <div class="item-info"><span class="item-titulo">${escapeHtml(ingreso.concepto)}</span><span class="item-sub">${ingreso.fecha || ''}</span></div>
         <div class="fila-derecha">
           <span class="item-monto" style="color:var(--ok)">+$${Number(ingreso.monto).toFixed(2)}</span>
           <button class="icon-btn btn-editar-ingreso"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
@@ -1087,9 +873,7 @@
     const concepto = document.getElementById("input-concepto-ingreso").value.trim();
     const monto = parseFloat(document.getElementById("input-monto-ingreso").value);
     const fecha = document.getElementById("input-fecha-ingreso").value || hoyISO();
-
     if (!concepto || isNaN(monto)) return alert("Completá concepto y monto válido.");
-
     try {
       const { error } = await supabaseClient.from("ingresos").insert([{ carpeta_id: carpetaActualId, concepto, monto, fecha }]);
       if (error) throw error;
@@ -1115,8 +899,7 @@
       const fecha = document.getElementById("edit-ingreso-fecha").value;
       if (!concepto || isNaN(monto)) return alert("Valores inválidos.");
       await supabaseClient.from("ingresos").update({ concepto, monto, fecha }).eq("id", ing.id);
-      cerrarSheets();
-      cargarIngresos();
+      cerrarSheets(); cargarIngresos();
     };
     abrirSheet(sheetEditar);
   }
@@ -1137,6 +920,7 @@
     });
   });
 
+  // --- TAREAS ---
   async function cargarTareas() {
     if (!supabaseClient || carpetaActualId === null) return;
     const { data, error } = await supabaseClient.from("tareas").select("*").eq("carpeta_id", carpetaActualId).order("creado_en", { ascending: false });
@@ -1148,24 +932,16 @@
   function renderTareas(items) {
     const ulPendientes = document.getElementById("lista-tareas");
     const ulCompletadas = document.getElementById("lista-tareas-completadas");
-    const cardCompletadas = document.getElementById("card-completadas");
-    const contador = document.getElementById("contador-completadas");
     ulPendientes.innerHTML = ""; ulCompletadas.innerHTML = "";
-
     const pendientes = items.filter((t) => !t.completada);
     const completadas = items.filter((t) => t.completada);
 
-    if (pendientes.length === 0) {
-      ulPendientes.innerHTML = '<li class="vacio">No hay tareas pendientes.</li>';
-    } else {
+    if (pendientes.length === 0) { ulPendientes.innerHTML = '<li class="vacio">No hay tareas pendientes.</li>'; }
+    else {
       pendientes.forEach((t) => {
         const esVencida = t.fecha_limite && t.fecha_limite < hoyISO();
         const li = document.createElement("li");
-        
-        // Estilo especial para permitir caja de descripción debajo
-        li.style.flexDirection = "column";
-        li.style.alignItems = "stretch";
-        
+        li.style.flexDirection = "column"; li.style.alignItems = "stretch";
         li.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; gap:10px;">
             <label class="item-check" style="flex:1;">
@@ -1186,35 +962,25 @@
           </div>
           ${t.descripcion ? `<div class="box-desc" style="display:none; margin-top:10px; padding:12px; background:var(--paper); border: 1px solid var(--line); border-radius:var(--radius-sm); font-size:0.88rem; color:var(--ink-soft); white-space:pre-wrap;">${escapeHtml(t.descripcion)}</div>` : ''}
         `;
-
         li.querySelector(".chk-tarea").addEventListener("change", () => alternarTarea(t.id, t.titulo, true));
         li.querySelector(".btn-editar-tarea").addEventListener("click", () => abriModalEditarTarea(t));
         li.querySelector(".btn-eliminar-tarea").addEventListener("click", () => eliminarTarea(t));
-        
-        // Logica para desplegar descripción
         if(t.descripcion) {
           li.querySelector(".btn-toggle-desc").addEventListener("click", (e) => {
             const box = li.querySelector(".box-desc");
             const icon = e.currentTarget.querySelector("svg");
-            if(box.style.display === "none") {
-              box.style.display = "block";
-              icon.style.transform = "rotate(180deg)";
-            } else {
-              box.style.display = "none";
-              icon.style.transform = "rotate(0deg)";
-            }
+            if(box.style.display === "none") { box.style.display = "block"; icon.style.transform = "rotate(180deg)"; } 
+            else { box.style.display = "none"; icon.style.transform = "rotate(0deg)"; }
           });
         }
-        
         ulPendientes.appendChild(li);
       });
     }
 
-    if (completadas.length === 0) {
-      cardCompletadas.style.display = "none";
-    } else {
-      cardCompletadas.style.display = "block";
-      contador.textContent = completadas.length;
+    if (completadas.length === 0) { document.getElementById("card-completadas").style.display = "none"; }
+    else {
+      document.getElementById("card-completadas").style.display = "block";
+      document.getElementById("contador-completadas").textContent = completadas.length;
       completadas.forEach((t) => {
         const li = document.createElement("li");
         li.innerHTML = `
@@ -1242,9 +1008,7 @@
     const descripcion = document.getElementById("input-tarea-desc").value.trim();
     const fecha_limite = document.getElementById("input-tarea-fecha").value || null;
     const prioridad = document.getElementById("select-tarea-prioridad").value;
-
     if (!titulo) return alert("Escribí un título.");
-
     try {
       const { error } = await supabaseClient.from("tareas").insert([{ carpeta_id: carpetaActualId, titulo, descripcion, fecha_limite, prioridad }]);
       if (error) throw error;
@@ -1279,8 +1043,7 @@
       const prioridad = document.getElementById("edit-tarea-prioridad").value;
       if (!titulo) return alert("El título es obligatorio.");
       await supabaseClient.from("tareas").update({ titulo, descripcion, fecha_limite, prioridad }).eq("id", t.id);
-      cerrarSheets();
-      cargarTareas();
+      cerrarSheets(); cargarTareas();
     };
     abrirSheet(sheetEditar);
   }
@@ -1297,6 +1060,88 @@
     cargarTareas();
   }
 
+  // --- NOTAS (¡NUEVO!) ---
+  async function cargarNotas() {
+    if (!supabaseClient || carpetaActualId === null) return;
+    const { data, error } = await supabaseClient.from("notas").select("*").eq("carpeta_id", carpetaActualId).order("creado_en", { ascending: false });
+    if (error) return;
+    cacheNotas = data || [];
+    renderNotas(cacheNotas);
+  }
+
+  function renderNotas(items) {
+    const ul = document.getElementById("lista-notas");
+    ul.innerHTML = "";
+    if (items.length === 0) { ul.innerHTML = '<li class="vacio">No hay notas en esta carpeta.</li>'; return; }
+    items.forEach((n) => {
+      const li = document.createElement("li");
+      li.style.flexDirection = "column"; li.style.alignItems = "stretch";
+      li.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; gap:10px;">
+          <div class="item-info" style="justify-content:center;">
+            <span class="item-titulo" style="font-size:1.02rem; font-weight:600;">${escapeHtml(n.titulo)}</span>
+          </div>
+          <div class="fila-derecha">
+            <button class="icon-btn btn-toggle-nota" title="Ver nota"><svg style="transition: transform 0.2s ease;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
+            <button class="icon-btn btn-editar-nota"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>
+            <button class="icon-btn danger-text btn-eliminar-nota"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+          </div>
+        </div>
+        <div class="box-desc" style="display:none; margin-top:10px; padding:14px; background:var(--paper); border: 1px solid var(--line); border-radius:var(--radius-sm); font-size:0.92rem; color:var(--ink); white-space:pre-wrap; line-height:1.5;">${escapeHtml(n.contenido || '')}</div>
+      `;
+      li.querySelector(".btn-toggle-nota").addEventListener("click", (e) => {
+        const box = li.querySelector(".box-desc");
+        const icon = e.currentTarget.querySelector("svg");
+        if(box.style.display === "none") { box.style.display = "block"; icon.style.transform = "rotate(180deg)"; } 
+        else { box.style.display = "none"; icon.style.transform = "rotate(0deg)"; }
+      });
+      li.querySelector(".btn-editar-nota").addEventListener("click", () => abriModalEditarNota(n));
+      li.querySelector(".btn-eliminar-nota").addEventListener("click", () => eliminarNota(n));
+      ul.appendChild(li);
+    });
+  }
+
+  async function guardarNota() {
+    if (!checarCliente() || carpetaActualId === null) return;
+    const titulo = document.getElementById("input-nota-titulo").value.trim();
+    const contenido = document.getElementById("input-nota-contenido").value.trim();
+    if (!titulo) return alert("Escribí un título para tu nota.");
+    try {
+      const { error } = await supabaseClient.from("notas").insert([{ carpeta_id: carpetaActualId, titulo, contenido }]);
+      if (error) throw error;
+      document.getElementById("input-nota-titulo").value = "";
+      document.getElementById("input-nota-contenido").value = "";
+      await cargarNotas();
+      registrarHistorial("crear", "nota", { titulo });
+    } catch (err) { alert("Error: " + err.message); }
+  }
+
+  function abriModalEditarNota(n) {
+    document.getElementById("titulo-modal-editar").textContent = "Editar Nota";
+    const cuerpo = document.getElementById("cuerpo-modal-editar");
+    cuerpo.innerHTML = `
+      <input type="text" id="edit-nota-titulo" value="${escapeHtml(n.titulo)}" />
+      <textarea id="edit-nota-contenido" style="min-height: 150px;">${escapeHtml(n.contenido || '')}</textarea>
+      <button id="btn-actualizar-nota">Guardar cambios</button>
+    `;
+    document.getElementById("btn-actualizar-nota").onclick = async () => {
+      const titulo = document.getElementById("edit-nota-titulo").value.trim();
+      const contenido = document.getElementById("edit-nota-contenido").value.trim();
+      if (!titulo) return alert("El título es obligatorio.");
+      await supabaseClient.from("notas").update({ titulo, contenido }).eq("id", n.id);
+      cerrarSheets(); cargarNotas();
+    };
+    abrirSheet(sheetEditar);
+  }
+
+  async function eliminarNota(n) {
+    if (!checarCliente() || !confirm(`¿Eliminar la nota "${n.titulo}"?`)) return;
+    await supabaseClient.from("notas").delete().eq("id", n.id);
+    cargarNotas();
+  }
+
+
+  // --- ARCHIVOS ---
   async function cargarArchivos() {
     if (!supabaseClient) return;
     const { data, error } = await supabaseClient.storage.from("adjuntos").list("", { sortBy: { column: "created_at", order: "desc" } });
@@ -1308,10 +1153,7 @@
   function renderArchivos(items) {
     const ul = document.getElementById("lista-archivos");
     ul.innerHTML = "";
-    if (items.length === 0) {
-      ul.innerHTML = '<li class="vacio">No hay archivos.</li>';
-      return;
-    }
+    if (items.length === 0) { ul.innerHTML = '<li class="vacio">No hay archivos.</li>'; return; }
     items.forEach((archivo) => {
       const { data: urlData } = supabaseClient.storage.from("adjuntos").getPublicUrl(archivo.name);
       const li = document.createElement("li");
@@ -1345,28 +1187,29 @@
     cargarArchivos();
   }
 
-  // BUSCADORES EN TIEMPO REAL
+  // --- BUSCADORES ---
   document.getElementById("buscar-gastos").addEventListener("input", (e) => {
     const q = e.target.value.toLowerCase();
     renderGastos(cacheGastos.filter(g => g.concepto.toLowerCase().includes(q) || (g.categoria && g.categoria.toLowerCase().includes(q))));
   });
-
   document.getElementById("buscar-ingresos").addEventListener("input", (e) => {
     const q = e.target.value.toLowerCase();
     renderIngresos(cacheIngresos.filter(i => i.concepto.toLowerCase().includes(q)));
   });
-
   document.getElementById("buscar-tareas").addEventListener("input", (e) => {
     const q = e.target.value.toLowerCase();
     renderTareas(cacheTareas.filter(t => t.titulo.toLowerCase().includes(q) || (t.descripcion && t.descripcion.toLowerCase().includes(q))));
   });
-
+  document.getElementById("buscar-notas").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    renderNotas(cacheNotas.filter(n => n.titulo.toLowerCase().includes(q) || (n.contenido && n.contenido.toLowerCase().includes(q))));
+  });
   document.getElementById("buscar-archivos").addEventListener("input", (e) => {
     const q = e.target.value.toLowerCase();
     renderArchivos(cacheArchivos.filter(a => a.name.toLowerCase().includes(q)));
   });
 
-  // EXPORTAR A CSV
+  // --- EXPORTAR ---
   document.getElementById("btn-exportar-gastos").addEventListener("click", () => descargarCSV(cacheGastos, `gastos_${carpetaActualNombre}`));
   document.getElementById("btn-exportar-ingresos").addEventListener("click", () => descargarCSV(cacheIngresos, `ingresos_${carpetaActualNombre}`));
 
@@ -1380,11 +1223,12 @@
 
   async function cargarResumen() {
     if (!supabaseClient) return;
-    const [carpetasRes, gastosRes, ingresosRes, tareasRes, archivosRes] = await Promise.all([
+    const [carpetasRes, gastosRes, ingresosRes, tareasRes, notasRes, archivosRes] = await Promise.all([
       supabaseClient.from("carpetas").select("id, nombre"),
       supabaseClient.from("gastos").select("carpeta_id, monto"),
       supabaseClient.from("ingresos").select("carpeta_id, monto"),
       supabaseClient.from("tareas").select("carpeta_id, completada"),
+      supabaseClient.from("notas").select("id", { count: 'exact' }),
       supabaseClient.storage.from("adjuntos").list(""),
     ]);
 
@@ -1392,7 +1236,7 @@
     const gastos = gastosRes.data || [];
     const ingresos = ingresosRes.data || [];
     const tareas = tareasRes.data || [];
-
+    
     let totalG = 0, totalI = 0;
     const totalPorCarpeta = {};
     gastos.forEach((g) => { totalG += Number(g.monto); totalPorCarpeta[g.carpeta_id] = (totalPorCarpeta[g.carpeta_id] || 0) + Number(g.monto); });
@@ -1406,7 +1250,7 @@
     elDisp.style.color = disp < 0 ? "var(--danger)" : "var(--ok)";
 
     document.getElementById("resumen-tareas-pendientes").textContent = tareas.filter((t) => !t.completada).length;
-    document.getElementById("resumen-tareas-completadas").textContent = tareas.filter((t) => t.completada).length;
+    document.getElementById("resumen-notas").textContent = notasRes.data ? notasRes.data.length : 0;
     document.getElementById("resumen-archivos").textContent = (archivosRes.data || []).length;
 
     const ulBarras = document.getElementById("resumen-gasto-carpetas");
@@ -1430,6 +1274,7 @@
   document.getElementById("btn-guardar-gasto").addEventListener("click", guardarGasto);
   document.getElementById("btn-guardar-ingreso").addEventListener("click", guardarIngreso);
   document.getElementById("btn-agregar-tarea").addEventListener("click", agregarTarea);
+  document.getElementById("btn-guardar-nota").addEventListener("click", guardarNota);
   document.getElementById("btn-subir-archivo").addEventListener("click", subirArchivo);
 
   actualizarPlaceholders();

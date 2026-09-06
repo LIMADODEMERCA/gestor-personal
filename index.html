@@ -474,7 +474,7 @@
       </div>
     </section>
 
-    <!-- PERFIL (¡NUEVO!) -->
+    <!-- PERFIL -->
     <section class="view" data-view="perfil">
       <div class="card">
         <h2>Mis Datos</h2>
@@ -485,13 +485,13 @@
         </div>
       </div>
 
-      <!-- ESTE PANEL SOLO LO VES VOS SI SOS ADMIN -->
+      <!-- PANEL DE ADMIN -->
       <div class="card" id="panel-crear-usuarios" style="display:none; border-color: var(--gold); background: var(--gold-tint);">
         <h2 style="color: var(--gold); border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 12px; margin-bottom: 16px;">👑 Panel de Administrador</h2>
         <p style="font-size: 0.88rem; color: var(--ink); margin: 0 0 16px; opacity: 0.8;">Agregá una persona a la plataforma para que pueda acceder a las carpetas.</p>
         <input type="email" id="nuevo-user-email" placeholder="Email del nuevo usuario" style="background: var(--card);" />
         <input type="password" id="nuevo-user-pass" placeholder="Contraseña temporal" style="background: var(--card);" />
-        <button id="btn-crear-nuevo-user" style="background: var(--gold); color: #17181A; margin-top: 8px;">Enviar Invitación</button>
+        <button id="btn-crear-nuevo-user" style="background: var(--gold); color: #17181A; margin-top: 8px;">Crear Usuario y Dar Acceso</button>
       </div>
     </section>
 
@@ -717,15 +717,45 @@
       badge.textContent = "Administrador";
       badge.classList.add("badge-admin");
       badge.classList.remove("badge-cat");
-      panelAdmin.style.display = "block"; // Se muestra el panel!
+      panelAdmin.style.display = "block";
     } else {
       badge.textContent = "Usuario";
       panelAdmin.style.display = "none";
     }
   }
 
-  document.getElementById("btn-crear-nuevo-user").addEventListener("click", () => {
-    alert("¡Atención!\n\nPor máxima seguridad, tu web no puede generar contraseñas y cuentas de otras personas directamente.\n\nPara invitar a alguien hoy mismo hacé esto:\n1. Entrá a Supabase (supabase.com/dashboard)\n2. Andá a Authentication > Users\n3. Hacé clic en 'Add user' y elegí 'Send invitation'.\n\n(Si más adelante querés que este botón funcione sí o sí, avisame y programamos una Edge Function en el servidor).");
+  // --- ACÁ ESTÁ LA FUNCIÓN CONECTADA A LA EDGE FUNCTION ---
+  document.getElementById("btn-crear-nuevo-user").addEventListener("click", async () => {
+    if (!checarCliente()) return;
+    
+    const email = document.getElementById("nuevo-user-email").value.trim();
+    const password = document.getElementById("nuevo-user-pass").value;
+    
+    if (!email || !password) return alert("Completá el email y la contraseña temporal.");
+    if (password.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+    
+    const btn = document.getElementById("btn-crear-nuevo-user");
+    btn.disabled = true;
+    btn.textContent = "Creando usuario...";
+    
+    try {
+      // Llamamos a la función segura que acabás de desplegar en Supabase
+      const { data, error } = await supabaseClient.functions.invoke('crear-usuario', {
+        body: { email, password }
+      });
+      
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+      
+      alert(`¡Éxito! El usuario ${email} fue creado.\nYa puede iniciar sesión con la contraseña que le pusiste.`);
+      document.getElementById("nuevo-user-email").value = "";
+      document.getElementById("nuevo-user-pass").value = "";
+    } catch (err) {
+      alert("Error al crear usuario: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Crear Usuario y Dar Acceso";
+    }
   });
 
   // --- CARPETAS ---
